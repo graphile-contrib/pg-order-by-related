@@ -1,0 +1,87 @@
+query {
+  A: allFoos {
+    nodes {
+      id
+    }
+  }
+  BACKWARD__NAME_ASC: allFoos(orderBy: BACKWARD__NAME_ASC) {
+    nodes {
+      id
+      backwardByFooId {
+        name
+      }
+    }
+  }
+  BACKWARD__NAME_DESC: allFoos(orderBy: BACKWARD__NAME_DESC) {
+    nodes {
+      id
+      backwardByFooId {
+        name
+      }
+    }
+  }
+  BACKWARD_COMPOUND__NAME_ASC: allFoos(orderBy: BACKWARD_COMPOUND__NAME_ASC) {
+    nodes {
+      id
+      backwardCompoundByBackwardCompound1AndBackwardCompound2 {
+        name
+      }
+    }
+  }
+  BACKWARD_COMPOUND__NAME_DESC: allFoos(orderBy: BACKWARD_COMPOUND__NAME_DESC) {
+    nodes {
+      id
+      backwardCompoundByBackwardCompound1AndBackwardCompound2 {
+        name
+      }
+    }
+  }
+  FORWARD__NAME_ASC: allFoos(orderBy: FORWARD__NAME_ASC) {
+    nodes {
+      id
+      forwardByForwardId {
+        name
+      }
+    }
+  }
+  FORWARD__NAME_DESC: allFoos(orderBy: FORWARD__NAME_DESC) {
+    nodes {
+      id
+      forwardByForwardId {
+        name
+      }
+    }
+  }
+  FORWARD_COMPOUND__NAME_ASC: allFoos(orderBy: FORWARD_COMPOUND__NAME_ASC) {
+    nodes {
+      id
+      forwardCompoundByForwardCompound1AndForwardCompound2 {
+        name
+      }
+    }
+  }
+  FORWARD_COMPOUND__NAME_DESC: allFoos(orderBy: FORWARD_COMPOUND__NAME_DESC) {
+    nodes {
+      id
+      forwardCompoundByForwardCompound1AndForwardCompound2 {
+        name
+      }
+    }
+  }
+  PARENT__NAME_ASC: allFoos(orderBy: PARENT__NAME_ASC) {
+    nodes {
+      id
+      parentByParentId {
+        name
+      }
+    }
+  }
+  PARENT__NAME_DESC: allFoos(orderBy: PARENT__NAME_DESC) {
+    nodes {
+      id
+      parentByParentId {
+        name
+      }
+    }
+  }
+}
