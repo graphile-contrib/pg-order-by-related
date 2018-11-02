@@ -1,9 +1,11 @@
 module.exports = function PgOrderRelatedColumnsPlugin(builder) {
   builder.hook("inflection", inflection => {
     return Object.assign(inflection, {
-      orderByRelatedColumnEnum(attr, ascending, foreignTable) {
+      orderByRelatedColumnEnum(attr, ascending, foreignTable, keys) {
         return `${this.constantCase(
-          foreignTable.name
+          `${this._singularizedTableName(foreignTable)}-by-${keys
+            .map(key => this._columnName(key))
+            .join("-and-")}`
         )}__${this.orderByColumnEnum(attr, ascending)}`;
       },
     });
@@ -60,6 +62,7 @@ module.exports = function PgOrderRelatedColumnsPlugin(builder) {
             foreignTable,
             keys,
             foreignKeys,
+            isForward: false,
           });
         }
         return memo;
@@ -91,12 +94,13 @@ module.exports = function PgOrderRelatedColumnsPlugin(builder) {
           foreignTable,
           keys,
           foreignKeys,
+          isForward: true,
         });
         return memo;
       }, []);
 
     const orderEnumValuesFromRelationSpec = relationSpec => {
-      const { foreignTable, keys, foreignKeys } = relationSpec;
+      const { foreignTable, keys, foreignKeys, isForward } = relationSpec;
 
       const sqlKeysMatch = tableAlias =>
         sql.fragment`(${sql.join(
@@ -118,12 +122,14 @@ module.exports = function PgOrderRelatedColumnsPlugin(builder) {
         const ascFieldName = inflection.orderByRelatedColumnEnum(
           attr,
           true,
-          foreignTable
+          foreignTable,
+          isForward ? keys : foreignKeys
         );
         const descFieldName = inflection.orderByRelatedColumnEnum(
           attr,
           false,
-          foreignTable
+          foreignTable,
+          isForward ? keys : foreignKeys
         );
 
         const sqlSubselect = ({ queryBuilder }) => sql.fragment`(
