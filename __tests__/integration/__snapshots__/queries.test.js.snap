@@ -22,71 +22,7 @@ Object {
         },
       ],
     },
-    "BACKWARD_COMPOUND__NAME_ASC": Object {
-      "nodes": Array [
-        Object {
-          "backwardCompoundByBackwardCompound1AndBackwardCompound2": Object {
-            "name": "backwardCompound11",
-          },
-          "id": 1,
-        },
-        Object {
-          "backwardCompoundByBackwardCompound1AndBackwardCompound2": Object {
-            "name": "backwardCompound12",
-          },
-          "id": 2,
-        },
-        Object {
-          "backwardCompoundByBackwardCompound1AndBackwardCompound2": Object {
-            "name": "backwardCompound21",
-          },
-          "id": 3,
-        },
-        Object {
-          "backwardCompoundByBackwardCompound1AndBackwardCompound2": Object {
-            "name": "backwardCompound22",
-          },
-          "id": 4,
-        },
-        Object {
-          "backwardCompoundByBackwardCompound1AndBackwardCompound2": null,
-          "id": 5,
-        },
-      ],
-    },
-    "BACKWARD_COMPOUND__NAME_DESC": Object {
-      "nodes": Array [
-        Object {
-          "backwardCompoundByBackwardCompound1AndBackwardCompound2": null,
-          "id": 5,
-        },
-        Object {
-          "backwardCompoundByBackwardCompound1AndBackwardCompound2": Object {
-            "name": "backwardCompound22",
-          },
-          "id": 4,
-        },
-        Object {
-          "backwardCompoundByBackwardCompound1AndBackwardCompound2": Object {
-            "name": "backwardCompound21",
-          },
-          "id": 3,
-        },
-        Object {
-          "backwardCompoundByBackwardCompound1AndBackwardCompound2": Object {
-            "name": "backwardCompound12",
-          },
-          "id": 2,
-        },
-        Object {
-          "backwardCompoundByBackwardCompound1AndBackwardCompound2": Object {
-            "name": "backwardCompound11",
-          },
-          "id": 1,
-        },
-      ],
-    },
-    "BACKWARD__NAME_ASC": Object {
+    "BACKWARD_BY_FOO_ID__NAME_ASC": Object {
       "nodes": Array [
         Object {
           "backwardByFooId": Object {
@@ -118,7 +54,7 @@ Object {
         },
       ],
     },
-    "BACKWARD__NAME_DESC": Object {
+    "BACKWARD_BY_FOO_ID__NAME_DESC": Object {
       "nodes": Array [
         Object {
           "backwardByFooId": null,
@@ -150,71 +86,71 @@ Object {
         },
       ],
     },
-    "FORWARD_COMPOUND__NAME_ASC": Object {
+    "BACKWARD_COMPOUND_BY_BACKWARD_COMPOUND_1_AND_BACKWARD_COMPOUND_2__NAME_ASC": Object {
       "nodes": Array [
         Object {
-          "forwardCompoundByForwardCompound1AndForwardCompound2": Object {
-            "name": "forwardCompound11",
+          "backwardCompoundByBackwardCompound1AndBackwardCompound2": Object {
+            "name": "backwardCompound11",
           },
           "id": 1,
         },
         Object {
-          "forwardCompoundByForwardCompound1AndForwardCompound2": Object {
-            "name": "forwardCompound12",
+          "backwardCompoundByBackwardCompound1AndBackwardCompound2": Object {
+            "name": "backwardCompound12",
           },
           "id": 2,
         },
         Object {
-          "forwardCompoundByForwardCompound1AndForwardCompound2": Object {
-            "name": "forwardCompound21",
+          "backwardCompoundByBackwardCompound1AndBackwardCompound2": Object {
+            "name": "backwardCompound21",
           },
           "id": 3,
         },
         Object {
-          "forwardCompoundByForwardCompound1AndForwardCompound2": Object {
-            "name": "forwardCompound22",
+          "backwardCompoundByBackwardCompound1AndBackwardCompound2": Object {
+            "name": "backwardCompound22",
           },
           "id": 4,
         },
         Object {
-          "forwardCompoundByForwardCompound1AndForwardCompound2": null,
+          "backwardCompoundByBackwardCompound1AndBackwardCompound2": null,
           "id": 5,
         },
       ],
     },
-    "FORWARD_COMPOUND__NAME_DESC": Object {
+    "BACKWARD_COMPOUND_BY_BACKWARD_COMPOUND_1_AND_BACKWARD_COMPOUND_2__NAME_DESC": Object {
       "nodes": Array [
         Object {
-          "forwardCompoundByForwardCompound1AndForwardCompound2": null,
+          "backwardCompoundByBackwardCompound1AndBackwardCompound2": null,
           "id": 5,
         },
         Object {
-          "forwardCompoundByForwardCompound1AndForwardCompound2": Object {
-            "name": "forwardCompound22",
+          "backwardCompoundByBackwardCompound1AndBackwardCompound2": Object {
+            "name": "backwardCompound22",
           },
           "id": 4,
         },
         Object {
-          "forwardCompoundByForwardCompound1AndForwardCompound2": Object {
-            "name": "forwardCompound21",
+          "backwardCompoundByBackwardCompound1AndBackwardCompound2": Object {
+            "name": "backwardCompound21",
           },
           "id": 3,
         },
         Object {
-          "forwardCompoundByForwardCompound1AndForwardCompound2": Object {
-            "name": "forwardCompound12",
+          "backwardCompoundByBackwardCompound1AndBackwardCompound2": Object {
+            "name": "backwardCompound12",
           },
           "id": 2,
         },
         Object {
-          "forwardCompoundByForwardCompound1AndForwardCompound2": Object {
-            "name": "forwardCompound11",
+          "backwardCompoundByBackwardCompound1AndBackwardCompound2": Object {
+            "name": "backwardCompound11",
           },
           "id": 1,
         },
       ],
     },
-    "FORWARD__NAME_ASC": Object {
+    "FORWARD_BY_FORWARD_ID__NAME_ASC": Object {
       "nodes": Array [
         Object {
           "forwardByForwardId": Object {
@@ -246,7 +182,7 @@ Object {
         },
       ],
     },
-    "FORWARD__NAME_DESC": Object {
+    "FORWARD_BY_FORWARD_ID__NAME_DESC": Object {
       "nodes": Array [
         Object {
           "forwardByForwardId": null,
@@ -278,7 +214,71 @@ Object {
         },
       ],
     },
-    "PARENT__NAME_ASC": Object {
+    "FORWARD_COMPOUND_BY_FORWARD_COMPOUND_1_AND_FORWARD_COMPOUND_2__NAME_ASC": Object {
+      "nodes": Array [
+        Object {
+          "forwardCompoundByForwardCompound1AndForwardCompound2": Object {
+            "name": "forwardCompound11",
+          },
+          "id": 1,
+        },
+        Object {
+          "forwardCompoundByForwardCompound1AndForwardCompound2": Object {
+            "name": "forwardCompound12",
+          },
+          "id": 2,
+        },
+        Object {
+          "forwardCompoundByForwardCompound1AndForwardCompound2": Object {
+            "name": "forwardCompound21",
+          },
+          "id": 3,
+        },
+        Object {
+          "forwardCompoundByForwardCompound1AndForwardCompound2": Object {
+            "name": "forwardCompound22",
+          },
+          "id": 4,
+        },
+        Object {
+          "forwardCompoundByForwardCompound1AndForwardCompound2": null,
+          "id": 5,
+        },
+      ],
+    },
+    "FORWARD_COMPOUND_BY_FORWARD_COMPOUND_1_AND_FORWARD_COMPOUND_2__NAME_DESC": Object {
+      "nodes": Array [
+        Object {
+          "forwardCompoundByForwardCompound1AndForwardCompound2": null,
+          "id": 5,
+        },
+        Object {
+          "forwardCompoundByForwardCompound1AndForwardCompound2": Object {
+            "name": "forwardCompound22",
+          },
+          "id": 4,
+        },
+        Object {
+          "forwardCompoundByForwardCompound1AndForwardCompound2": Object {
+            "name": "forwardCompound21",
+          },
+          "id": 3,
+        },
+        Object {
+          "forwardCompoundByForwardCompound1AndForwardCompound2": Object {
+            "name": "forwardCompound12",
+          },
+          "id": 2,
+        },
+        Object {
+          "forwardCompoundByForwardCompound1AndForwardCompound2": Object {
+            "name": "forwardCompound11",
+          },
+          "id": 1,
+        },
+      ],
+    },
+    "PARENT_BY_PARENT_ID__NAME_ASC": Object {
       "nodes": Array [
         Object {
           "id": 1,
@@ -310,7 +310,7 @@ Object {
         },
       ],
     },
-    "PARENT__NAME_DESC": Object {
+    "PARENT_BY_PARENT_ID__NAME_DESC": Object {
       "nodes": Array [
         Object {
           "id": 5,

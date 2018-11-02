@@ -4,7 +4,7 @@ query {
       id
     }
   }
-  BACKWARD__NAME_ASC: allFoos(orderBy: BACKWARD__NAME_ASC) {
+  BACKWARD_BY_FOO_ID__NAME_ASC: allFoos(orderBy: BACKWARD_BY_FOO_ID__NAME_ASC) {
     nodes {
       id
       backwardByFooId {
@@ -12,7 +12,7 @@ query {
       }
     }
   }
-  BACKWARD__NAME_DESC: allFoos(orderBy: BACKWARD__NAME_DESC) {
+  BACKWARD_BY_FOO_ID__NAME_DESC: allFoos(orderBy: BACKWARD_BY_FOO_ID__NAME_DESC) {
     nodes {
       id
       backwardByFooId {
@@ -20,7 +20,7 @@ query {
       }
     }
   }
-  BACKWARD_COMPOUND__NAME_ASC: allFoos(orderBy: BACKWARD_COMPOUND__NAME_ASC) {
+  BACKWARD_COMPOUND_BY_BACKWARD_COMPOUND_1_AND_BACKWARD_COMPOUND_2__NAME_ASC: allFoos(orderBy: BACKWARD_COMPOUND_BY_BACKWARD_COMPOUND_1_AND_BACKWARD_COMPOUND_2__NAME_ASC) {
     nodes {
       id
       backwardCompoundByBackwardCompound1AndBackwardCompound2 {
@@ -28,7 +28,7 @@ query {
       }
     }
   }
-  BACKWARD_COMPOUND__NAME_DESC: allFoos(orderBy: BACKWARD_COMPOUND__NAME_DESC) {
+  BACKWARD_COMPOUND_BY_BACKWARD_COMPOUND_1_AND_BACKWARD_COMPOUND_2__NAME_DESC: allFoos(orderBy: BACKWARD_COMPOUND_BY_BACKWARD_COMPOUND_1_AND_BACKWARD_COMPOUND_2__NAME_DESC) {
     nodes {
       id
       backwardCompoundByBackwardCompound1AndBackwardCompound2 {
@@ -36,7 +36,7 @@ query {
       }
     }
   }
-  FORWARD__NAME_ASC: allFoos(orderBy: FORWARD__NAME_ASC) {
+  FORWARD_BY_FORWARD_ID__NAME_ASC: allFoos(orderBy: FORWARD_BY_FORWARD_ID__NAME_ASC) {
     nodes {
       id
       forwardByForwardId {
@@ -44,7 +44,7 @@ query {
       }
     }
   }
-  FORWARD__NAME_DESC: allFoos(orderBy: FORWARD__NAME_DESC) {
+  FORWARD_BY_FORWARD_ID__NAME_DESC: allFoos(orderBy: FORWARD_BY_FORWARD_ID__NAME_DESC) {
     nodes {
       id
       forwardByForwardId {
@@ -52,7 +52,7 @@ query {
       }
     }
   }
-  FORWARD_COMPOUND__NAME_ASC: allFoos(orderBy: FORWARD_COMPOUND__NAME_ASC) {
+  FORWARD_COMPOUND_BY_FORWARD_COMPOUND_1_AND_FORWARD_COMPOUND_2__NAME_ASC: allFoos(orderBy: FORWARD_COMPOUND_BY_FORWARD_COMPOUND_1_AND_FORWARD_COMPOUND_2__NAME_ASC) {
     nodes {
       id
       forwardCompoundByForwardCompound1AndForwardCompound2 {
@@ -60,7 +60,7 @@ query {
       }
     }
   }
-  FORWARD_COMPOUND__NAME_DESC: allFoos(orderBy: FORWARD_COMPOUND__NAME_DESC) {
+  FORWARD_COMPOUND_BY_FORWARD_COMPOUND_1_AND_FORWARD_COMPOUND_2__NAME_DESC: allFoos(orderBy: FORWARD_COMPOUND_BY_FORWARD_COMPOUND_1_AND_FORWARD_COMPOUND_2__NAME_DESC) {
     nodes {
       id
       forwardCompoundByForwardCompound1AndForwardCompound2 {
@@ -68,7 +68,7 @@ query {
       }
     }
   }
-  PARENT__NAME_ASC: allFoos(orderBy: PARENT__NAME_ASC) {
+  PARENT_BY_PARENT_ID__NAME_ASC: allFoos(orderBy: PARENT_BY_PARENT_ID__NAME_ASC) {
     nodes {
       id
       parentByParentId {
@@ -76,7 +76,7 @@ query {
       }
     }
   }
-  PARENT__NAME_DESC: allFoos(orderBy: PARENT__NAME_DESC) {
+  PARENT_BY_PARENT_ID__NAME_DESC: allFoos(orderBy: PARENT_BY_PARENT_ID__NAME_DESC) {
     nodes {
       id
       parentByParentId {

@@ -42,16 +42,18 @@ app.listen(process.env.PORT || 3000);
 
 ## Inflection
 
-This plugin follows the constant-case naming convention of PostGraphile v4 (e.g. `POSTS__CREATED_AT_ASC`). You can override this by adding an inflector plugin. The following plugin would camel-case the table name:
+To avoid naming conflicts, this plugin uses a `<TABLE>_BY_<KEYS>` naming convention (e.g. `USER_BY_AUTHOR_ID__CREATED_AT_ASC`), similar to how related fields are named by default in PostGraphile v4. 
+
+You can override this by adding an inflector plugin. For example, the following plugin shortens the names by dropping the `<TABLE>_BY` portion (producing e.g. `AUTHOR_ID__CREATED_AT_ASC`):
 
 ```js
 const { makeAddInflectorsPlugin } = require("graphile-utils");
 
 module.exports = makeAddInflectorsPlugin(
   {
-    orderByRelatedColumnEnum(attr, ascending, foreignTable) {
-      return `${this.camelCase(
-        foreignTable.name
+    orderByRelatedColumnEnum(attr, ascending, foreignTable, keys) {
+      return `${this.constantCase(
+        keys.map(key => this._columnName(key)).join("-and-")
       )}__${this.orderByColumnEnum(attr, ascending)}`;
     },
   },
