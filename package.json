@@ -17,7 +17,7 @@
     "url": "https://github.com/graphile-contrib/pg-order-by-related/issues"
   },
   "peerDependencies": {
-    "postgraphile": "^4.1.0-rc.0"
+    "graphile-build-pg": "^4.1.0-rc.0"
   },
   "devDependencies": {
     "eslint": "^4.0.0",
