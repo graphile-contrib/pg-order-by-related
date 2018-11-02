@@ -6,7 +6,7 @@ Both forward (1:1 and 1:m) and backward (1:1) relations are supported.
 
 ## Installation
 
-Dependencies: `graphile-build-pg@^4.1.0` (`postgraphile@^4.1.0`)
+Dependencies: `graphile-build-pg@^4.1.0-rc.0` (`postgraphile@^4.1.0-rc.0`)
 
 ```
 yarn add @graphile-contrib/pg-order-by-related
