@@ -1,5 +1,5 @@
 {
-  "name": "@graphile-contrib/pg-omit-archived",
+  "name": "@graphile-contrib/pg-order-by-related",
   "version": "1.0.0-alpha.0",
   "description": "Order by related columns on PostGraphile connections",
   "main": "index.js",
