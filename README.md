@@ -2,7 +2,26 @@
 
 This Graphile Engine plugin adds additional enum values to the `orderBy` argument on connections, allowing you to order by columns in related tables.
 
-Both forward (1:1 and 1:m) and backward (1:1) relations are supported.
+Example:
+
+```graphql
+
+{
+  # additional enum values exposed here 👇
+  allPosts(orderBy: PERSON_BY_AUTHOR_ID__CREATED_AT_ASC) {
+    nodes {
+      headline
+      personByAuthorId {
+        id
+        name
+        about
+      }
+    }
+  }
+}
+```
+
+One-to-one and many-to-one relations are supported.
 
 ## Installation
 
