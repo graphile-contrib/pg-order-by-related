@@ -264,64 +264,6 @@ type Foo implements Node {
   \\"\\"\\"Reads a single \`BackwardCompound\` that is related to this \`Foo\`.\\"\\"\\"
   backwardCompoundByBackwardCompound1AndBackwardCompound2: BackwardCompound
 
-  \\"\\"\\"Reads and enables pagination through a set of \`BackwardCompound\`.\\"\\"\\"
-  backwardCompoundsByBackwardCompound1AndBackwardCompound2(
-    \\"\\"\\"Read all values in the set after (below) this cursor.\\"\\"\\"
-    after: Cursor
-
-    \\"\\"\\"Read all values in the set before (above) this cursor.\\"\\"\\"
-    before: Cursor
-
-    \\"\\"\\"
-    A condition to be used in determining which values should be returned by the collection.
-    \\"\\"\\"
-    condition: BackwardCompoundCondition
-
-    \\"\\"\\"Only read the first \`n\` values of the set.\\"\\"\\"
-    first: Int
-
-    \\"\\"\\"Only read the last \`n\` values of the set.\\"\\"\\"
-    last: Int
-
-    \\"\\"\\"
-    Skip the first \`n\` values from our \`after\` cursor, an alternative to cursor
-    based pagination. May not be used with \`last\`.
-    \\"\\"\\"
-    offset: Int
-
-    \\"\\"\\"The method to use when ordering \`BackwardCompound\`.\\"\\"\\"
-    orderBy: [BackwardCompoundsOrderBy!] = [PRIMARY_KEY_ASC]
-  ): BackwardCompoundsConnection! @deprecated(reason: \\"Please use backwardCompoundByBackwardCompound1AndBackwardCompound2 instead\\")
-
-  \\"\\"\\"Reads and enables pagination through a set of \`Backward\`.\\"\\"\\"
-  backwardsByFooId(
-    \\"\\"\\"Read all values in the set after (below) this cursor.\\"\\"\\"
-    after: Cursor
-
-    \\"\\"\\"Read all values in the set before (above) this cursor.\\"\\"\\"
-    before: Cursor
-
-    \\"\\"\\"
-    A condition to be used in determining which values should be returned by the collection.
-    \\"\\"\\"
-    condition: BackwardCondition
-
-    \\"\\"\\"Only read the first \`n\` values of the set.\\"\\"\\"
-    first: Int
-
-    \\"\\"\\"Only read the last \`n\` values of the set.\\"\\"\\"
-    last: Int
-
-    \\"\\"\\"
-    Skip the first \`n\` values from our \`after\` cursor, an alternative to cursor
-    based pagination. May not be used with \`last\`.
-    \\"\\"\\"
-    offset: Int
-
-    \\"\\"\\"The method to use when ordering \`Backward\`.\\"\\"\\"
-    orderBy: [BackwardsOrderBy!] = [PRIMARY_KEY_ASC]
-  ): BackwardsConnection! @deprecated(reason: \\"Please use backwardByFooId instead\\")
-
   \\"\\"\\"Reads and enables pagination through a set of \`Child\`.\\"\\"\\"
   childrenByFooId(
     \\"\\"\\"Read all values in the set after (below) this cursor.\\"\\"\\"
@@ -479,35 +421,6 @@ enum FoosOrderBy {
 type Forward implements Node {
   \\"\\"\\"Reads a single \`Foo\` that is related to this \`Forward\`.\\"\\"\\"
   fooByForwardId: Foo
-
-  \\"\\"\\"Reads and enables pagination through a set of \`Foo\`.\\"\\"\\"
-  foosByForwardId(
-    \\"\\"\\"Read all values in the set after (below) this cursor.\\"\\"\\"
-    after: Cursor
-
-    \\"\\"\\"Read all values in the set before (above) this cursor.\\"\\"\\"
-    before: Cursor
-
-    \\"\\"\\"
-    A condition to be used in determining which values should be returned by the collection.
-    \\"\\"\\"
-    condition: FooCondition
-
-    \\"\\"\\"Only read the first \`n\` values of the set.\\"\\"\\"
-    first: Int
-
-    \\"\\"\\"Only read the last \`n\` values of the set.\\"\\"\\"
-    last: Int
-
-    \\"\\"\\"
-    Skip the first \`n\` values from our \`after\` cursor, an alternative to cursor
-    based pagination. May not be used with \`last\`.
-    \\"\\"\\"
-    offset: Int
-
-    \\"\\"\\"The method to use when ordering \`Foo\`.\\"\\"\\"
-    orderBy: [FoosOrderBy!] = [PRIMARY_KEY_ASC]
-  ): FoosConnection! @deprecated(reason: \\"Please use fooByForwardId instead\\")
   id: Int!
   name: String!
 
