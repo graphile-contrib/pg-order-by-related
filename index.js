@@ -36,7 +36,7 @@ module.exports = function PgOrderRelatedColumnsPlugin(builder) {
       return values;
     }
 
-    const backwardSingleRelationSpecs = table.foreignConstraints
+    const backwardRelationSpecs = table.foreignConstraints
       .filter(con => con.type === "f")
       .reduce((memo, foreignConstraint) => {
         if (omit(foreignConstraint, "read")) {
@@ -241,7 +241,7 @@ module.exports = function PgOrderRelatedColumnsPlugin(builder) {
 
     return extend(
       values,
-      [...forwardRelationSpecs, ...backwardSingleRelationSpecs].reduce(
+      [...forwardRelationSpecs, ...backwardRelationSpecs].reduce(
         (memo, relationSpec) =>
           extend(memo, orderEnumValuesFromRelationSpec(relationSpec)),
         {}
