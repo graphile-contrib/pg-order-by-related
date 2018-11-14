@@ -150,6 +150,74 @@ Object {
         },
       ],
     },
+    "CHILDREN_BY_FOO_ID__COUNT_ASC": Object {
+      "nodes": Array [
+        Object {
+          "childrenByFooId": Object {
+            "totalCount": 0,
+          },
+          "id": 3,
+        },
+        Object {
+          "childrenByFooId": Object {
+            "totalCount": 0,
+          },
+          "id": 4,
+        },
+        Object {
+          "childrenByFooId": Object {
+            "totalCount": 0,
+          },
+          "id": 5,
+        },
+        Object {
+          "childrenByFooId": Object {
+            "totalCount": 2,
+          },
+          "id": 1,
+        },
+        Object {
+          "childrenByFooId": Object {
+            "totalCount": 2,
+          },
+          "id": 2,
+        },
+      ],
+    },
+    "CHILDREN_BY_FOO_ID__COUNT_DESC": Object {
+      "nodes": Array [
+        Object {
+          "childrenByFooId": Object {
+            "totalCount": 2,
+          },
+          "id": 1,
+        },
+        Object {
+          "childrenByFooId": Object {
+            "totalCount": 2,
+          },
+          "id": 2,
+        },
+        Object {
+          "childrenByFooId": Object {
+            "totalCount": 0,
+          },
+          "id": 3,
+        },
+        Object {
+          "childrenByFooId": Object {
+            "totalCount": 0,
+          },
+          "id": 4,
+        },
+        Object {
+          "childrenByFooId": Object {
+            "totalCount": 0,
+          },
+          "id": 5,
+        },
+      ],
+    },
     "FORWARD_BY_FORWARD_ID__NAME_ASC": Object {
       "nodes": Array [
         Object {

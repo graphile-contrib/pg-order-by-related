@@ -21,7 +21,7 @@ Example:
 }
 ```
 
-One-to-one and many-to-one relations are supported.
+One-to-one and many-to-one relations are supported. For one-to-many relations, `__COUNT_ASC`/`__COUNT_DESC` enums allow ordering by the number related records.
 
 ## Installation
 

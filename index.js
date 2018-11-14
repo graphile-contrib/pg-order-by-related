@@ -8,6 +8,13 @@ module.exports = function PgOrderRelatedColumnsPlugin(builder) {
             .join("-and-")}`
         )}__${this.orderByColumnEnum(attr, ascending)}`;
       },
+      orderByRelatedCountEnum(ascending, foreignTable, keys) {
+        return `${this.constantCase(
+          `${this.pluralize(
+            this._singularizedTableName(foreignTable)
+          )}-by-${keys.map(key => this._columnName(key)).join("-and-")}`
+        )}__${this.constantCase(`count-${ascending ? "asc" : "desc"}`)}`;
+      },
     });
   });
 
@@ -62,7 +69,14 @@ module.exports = function PgOrderRelatedColumnsPlugin(builder) {
             foreignTable,
             keys,
             foreignKeys,
-            isForward: false,
+            isBackwardSingle: true,
+          });
+        } else {
+          memo.push({
+            foreignTable,
+            keys,
+            foreignKeys,
+            isBackwardMany: true,
           });
         }
         return memo;
@@ -100,7 +114,13 @@ module.exports = function PgOrderRelatedColumnsPlugin(builder) {
       }, []);
 
     const orderEnumValuesFromRelationSpec = relationSpec => {
-      const { foreignTable, keys, foreignKeys, isForward } = relationSpec;
+      const {
+        foreignTable,
+        keys,
+        foreignKeys,
+        isForward,
+        isBackwardMany,
+      } = relationSpec;
 
       const sqlKeysMatch = tableAlias =>
         sql.fragment`(${sql.join(
@@ -115,72 +135,108 @@ module.exports = function PgOrderRelatedColumnsPlugin(builder) {
           ") and ("
         )})`;
 
-      return foreignTable.attributes.reduce((memo, attr) => {
-        if (!pgColumnFilter(attr, build, context)) return memo;
-        if (omit(attr, "order")) return memo;
+      const inflectionKeys = isForward ? keys : foreignKeys;
 
-        const ascFieldName = inflection.orderByRelatedColumnEnum(
-          attr,
+      if (isBackwardMany) {
+        const ascEnumName = inflection.orderByRelatedCountEnum(
           true,
           foreignTable,
-          isForward ? keys : foreignKeys
+          inflectionKeys
         );
-        const descFieldName = inflection.orderByRelatedColumnEnum(
-          attr,
+        const descEnumName = inflection.orderByRelatedCountEnum(
           false,
           foreignTable,
-          isForward ? keys : foreignKeys
+          inflectionKeys
         );
 
         const sqlSubselect = ({ queryBuilder }) => sql.fragment`(
-              select ${sql.identifier(attr.name)}
-              from ${sql.identifier(
-                foreignTable.namespace.name,
-                foreignTable.name
-              )}
-              where ${sqlKeysMatch(queryBuilder.getTableAlias())}
-              )`;
+          select count(*)
+          from ${sql.identifier(foreignTable.namespace.name, foreignTable.name)}
+          where ${sqlKeysMatch(queryBuilder.getTableAlias())}
+          )`;
 
-        memo = extend(
-          memo,
-          {
-            [ascFieldName]: {
-              value: {
-                alias: ascFieldName.toLowerCase(),
-                specs: [[sqlSubselect, true]],
-              },
+        return {
+          [ascEnumName]: {
+            value: {
+              alias: ascEnumName.toLowerCase(),
+              specs: [[sqlSubselect, true]],
             },
           },
-          `Adding ascending orderBy enum value for ${describePgEntity(
-            attr
-          )}. You can rename this field with:\n\n  ${sqlCommentByAddingTags(
-            attr,
-            {
-              name: "newNameHere",
-            }
-          )}`
-        );
-        memo = extend(
-          memo,
-          {
-            [descFieldName]: {
-              value: {
-                alias: descFieldName.toLowerCase(),
-                specs: [[sqlSubselect, false]],
-              },
+          [descEnumName]: {
+            value: {
+              alias: descEnumName.toLowerCase(),
+              specs: [[sqlSubselect, false]],
             },
           },
-          `Adding descending orderBy enum value for ${describePgEntity(
-            attr
-          )}. You can rename this field with:\n\n  ${sqlCommentByAddingTags(
+        };
+      } else {
+        return foreignTable.attributes.reduce((memo, attr) => {
+          if (!pgColumnFilter(attr, build, context)) return memo;
+          if (omit(attr, "order")) return memo;
+
+          const ascEnumName = inflection.orderByRelatedColumnEnum(
             attr,
+            true,
+            foreignTable,
+            inflectionKeys
+          );
+          const descEnumName = inflection.orderByRelatedColumnEnum(
+            attr,
+            false,
+            foreignTable,
+            inflectionKeys
+          );
+
+          const sqlSubselect = ({ queryBuilder }) => sql.fragment`(
+            select ${sql.identifier(attr.name)}
+            from ${sql.identifier(
+              foreignTable.namespace.name,
+              foreignTable.name
+            )}
+            where ${sqlKeysMatch(queryBuilder.getTableAlias())}
+            )`;
+
+          memo = extend(
+            memo,
             {
-              name: "newNameHere",
-            }
-          )}`
-        );
-        return memo;
-      }, {});
+              [ascEnumName]: {
+                value: {
+                  alias: ascEnumName.toLowerCase(),
+                  specs: [[sqlSubselect, true]],
+                },
+              },
+            },
+            `Adding ascending orderBy enum value for ${describePgEntity(
+              attr
+            )}. You can rename this field with:\n\n  ${sqlCommentByAddingTags(
+              attr,
+              {
+                name: "newNameHere",
+              }
+            )}`
+          );
+          memo = extend(
+            memo,
+            {
+              [descEnumName]: {
+                value: {
+                  alias: descEnumName.toLowerCase(),
+                  specs: [[sqlSubselect, false]],
+                },
+              },
+            },
+            `Adding descending orderBy enum value for ${describePgEntity(
+              attr
+            )}. You can rename this field with:\n\n  ${sqlCommentByAddingTags(
+              attr,
+              {
+                name: "newNameHere",
+              }
+            )}`
+          );
+          return memo;
+        }, {});
+      }
     };
 
     return extend(
