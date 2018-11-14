@@ -71,6 +71,8 @@ enum BackwardCompoundsOrderBy {
   BACKWARD_COMPOUND_1_DESC
   FOO_BY_BACKWARD_COMPOUND_1_AND_BACKWARD_COMPOUND_2__BACKWARD_COMPOUND_1_ASC
   FOO_BY_BACKWARD_COMPOUND_1_AND_BACKWARD_COMPOUND_2__BACKWARD_COMPOUND_1_DESC
+  FOO_BY_BACKWARD_COMPOUND_1_AND_BACKWARD_COMPOUND_2__FORWARD_COMPOUND_1_ASC
+  FOO_BY_BACKWARD_COMPOUND_1_AND_BACKWARD_COMPOUND_2__FORWARD_COMPOUND_1_DESC
   FOO_BY_BACKWARD_COMPOUND_1_AND_BACKWARD_COMPOUND_2__FORWARD_ID_ASC
   FOO_BY_BACKWARD_COMPOUND_1_AND_BACKWARD_COMPOUND_2__FORWARD_ID_DESC
   FOO_BY_BACKWARD_COMPOUND_1_AND_BACKWARD_COMPOUND_2__ID_ASC
@@ -122,6 +124,8 @@ type BackwardsEdge {
 enum BackwardsOrderBy {
   FOO_BY_FOO_ID__BACKWARD_COMPOUND_1_ASC
   FOO_BY_FOO_ID__BACKWARD_COMPOUND_1_DESC
+  FOO_BY_FOO_ID__FORWARD_COMPOUND_1_ASC
+  FOO_BY_FOO_ID__FORWARD_COMPOUND_1_DESC
   FOO_BY_FOO_ID__FORWARD_ID_ASC
   FOO_BY_FOO_ID__FORWARD_ID_DESC
   FOO_BY_FOO_ID__ID_ASC
@@ -201,68 +205,13 @@ type Foo implements Node {
   \\"\\"\\"Reads a single \`BackwardCompound\` that is related to this \`Foo\`.\\"\\"\\"
   backwardCompoundByBackwardCompound1AndBackwardCompound2: BackwardCompound
 
-  \\"\\"\\"Reads and enables pagination through a set of \`BackwardCompound\`.\\"\\"\\"
-  backwardCompoundsByBackwardCompound1AndBackwardCompound2(
-    \\"\\"\\"Read all values in the set after (below) this cursor.\\"\\"\\"
-    after: Cursor
-
-    \\"\\"\\"Read all values in the set before (above) this cursor.\\"\\"\\"
-    before: Cursor
-
-    \\"\\"\\"
-    A condition to be used in determining which values should be returned by the collection.
-    \\"\\"\\"
-    condition: BackwardCompoundCondition
-
-    \\"\\"\\"Only read the first \`n\` values of the set.\\"\\"\\"
-    first: Int
-
-    \\"\\"\\"Only read the last \`n\` values of the set.\\"\\"\\"
-    last: Int
-
-    \\"\\"\\"
-    Skip the first \`n\` values from our \`after\` cursor, an alternative to cursor
-    based pagination. May not be used with \`last\`.
-    \\"\\"\\"
-    offset: Int
-
-    \\"\\"\\"The method to use when ordering \`BackwardCompound\`.\\"\\"\\"
-    orderBy: [BackwardCompoundsOrderBy!] = [PRIMARY_KEY_ASC]
-  ): BackwardCompoundsConnection! @deprecated(reason: \\"Please use backwardCompoundByBackwardCompound1AndBackwardCompound2 instead\\")
-
-  \\"\\"\\"Reads and enables pagination through a set of \`Backward\`.\\"\\"\\"
-  backwardsByFooId(
-    \\"\\"\\"Read all values in the set after (below) this cursor.\\"\\"\\"
-    after: Cursor
-
-    \\"\\"\\"Read all values in the set before (above) this cursor.\\"\\"\\"
-    before: Cursor
-
-    \\"\\"\\"
-    A condition to be used in determining which values should be returned by the collection.
-    \\"\\"\\"
-    condition: BackwardCondition
-
-    \\"\\"\\"Only read the first \`n\` values of the set.\\"\\"\\"
-    first: Int
-
-    \\"\\"\\"Only read the last \`n\` values of the set.\\"\\"\\"
-    last: Int
-
-    \\"\\"\\"
-    Skip the first \`n\` values from our \`after\` cursor, an alternative to cursor
-    based pagination. May not be used with \`last\`.
-    \\"\\"\\"
-    offset: Int
-
-    \\"\\"\\"The method to use when ordering \`Backward\`.\\"\\"\\"
-    orderBy: [BackwardsOrderBy!] = [PRIMARY_KEY_ASC]
-  ): BackwardsConnection! @deprecated(reason: \\"Please use backwardByFooId instead\\")
-
   \\"\\"\\"Reads a single \`Forward\` that is related to this \`Foo\`.\\"\\"\\"
   forwardByForwardId: Forward
   forwardCompound1: Int
   forwardCompound2: Int
+
+  \\"\\"\\"Reads a single \`ForwardCompound\` that is related to this \`Foo\`.\\"\\"\\"
+  forwardCompoundByForwardCompound1AndForwardCompound2: ForwardCompound
   forwardId: Int
   id: Int!
   name: String
@@ -280,6 +229,9 @@ A condition to be used against \`Foo\` object types. All fields are tested for e
 input FooCondition {
   \\"\\"\\"Checks for equality with the object’s \`backwardCompound1\` field.\\"\\"\\"
   backwardCompound1: Int
+
+  \\"\\"\\"Checks for equality with the object’s \`forwardCompound1\` field.\\"\\"\\"
+  forwardCompound1: Int
 
   \\"\\"\\"Checks for equality with the object’s \`forwardId\` field.\\"\\"\\"
   forwardId: Int
@@ -326,6 +278,10 @@ enum FoosOrderBy {
   BACKWARD_COMPOUND_BY_BACKWARD_COMPOUND_1_AND_BACKWARD_COMPOUND_2__BACKWARD_COMPOUND_1_DESC
   FORWARD_BY_FORWARD_ID__ID_ASC
   FORWARD_BY_FORWARD_ID__ID_DESC
+  FORWARD_COMPOUND_1_ASC
+  FORWARD_COMPOUND_1_DESC
+  FORWARD_COMPOUND_BY_FORWARD_COMPOUND_1_AND_FORWARD_COMPOUND_2__FORWARD_COMPOUND_1_ASC
+  FORWARD_COMPOUND_BY_FORWARD_COMPOUND_1_AND_FORWARD_COMPOUND_2__FORWARD_COMPOUND_1_DESC
   FORWARD_ID_ASC
   FORWARD_ID_DESC
   ID_ASC
@@ -338,35 +294,6 @@ enum FoosOrderBy {
 type Forward implements Node {
   \\"\\"\\"Reads a single \`Foo\` that is related to this \`Forward\`.\\"\\"\\"
   fooByForwardId: Foo
-
-  \\"\\"\\"Reads and enables pagination through a set of \`Foo\`.\\"\\"\\"
-  foosByForwardId(
-    \\"\\"\\"Read all values in the set after (below) this cursor.\\"\\"\\"
-    after: Cursor
-
-    \\"\\"\\"Read all values in the set before (above) this cursor.\\"\\"\\"
-    before: Cursor
-
-    \\"\\"\\"
-    A condition to be used in determining which values should be returned by the collection.
-    \\"\\"\\"
-    condition: FooCondition
-
-    \\"\\"\\"Only read the first \`n\` values of the set.\\"\\"\\"
-    first: Int
-
-    \\"\\"\\"Only read the last \`n\` values of the set.\\"\\"\\"
-    last: Int
-
-    \\"\\"\\"
-    Skip the first \`n\` values from our \`after\` cursor, an alternative to cursor
-    based pagination. May not be used with \`last\`.
-    \\"\\"\\"
-    offset: Int
-
-    \\"\\"\\"The method to use when ordering \`Foo\`.\\"\\"\\"
-    orderBy: [FoosOrderBy!] = [PRIMARY_KEY_ASC]
-  ): FoosConnection! @deprecated(reason: \\"Please use fooByForwardId instead\\")
   id: Int!
   name: String!
 
@@ -377,6 +304,8 @@ type Forward implements Node {
 }
 
 type ForwardCompound implements Node {
+  \\"\\"\\"Reads a single \`Foo\` that is related to this \`ForwardCompound\`.\\"\\"\\"
+  fooByForwardCompound1AndForwardCompound2: Foo
   forwardCompound1: Int!
   forwardCompound2: Int!
   name: String
@@ -426,6 +355,14 @@ type ForwardCompoundsEdge {
 
 \\"\\"\\"Methods to use when ordering \`ForwardCompound\`.\\"\\"\\"
 enum ForwardCompoundsOrderBy {
+  FOO_BY_FORWARD_COMPOUND_1_AND_FORWARD_COMPOUND_2__BACKWARD_COMPOUND_1_ASC
+  FOO_BY_FORWARD_COMPOUND_1_AND_FORWARD_COMPOUND_2__BACKWARD_COMPOUND_1_DESC
+  FOO_BY_FORWARD_COMPOUND_1_AND_FORWARD_COMPOUND_2__FORWARD_COMPOUND_1_ASC
+  FOO_BY_FORWARD_COMPOUND_1_AND_FORWARD_COMPOUND_2__FORWARD_COMPOUND_1_DESC
+  FOO_BY_FORWARD_COMPOUND_1_AND_FORWARD_COMPOUND_2__FORWARD_ID_ASC
+  FOO_BY_FORWARD_COMPOUND_1_AND_FORWARD_COMPOUND_2__FORWARD_ID_DESC
+  FOO_BY_FORWARD_COMPOUND_1_AND_FORWARD_COMPOUND_2__ID_ASC
+  FOO_BY_FORWARD_COMPOUND_1_AND_FORWARD_COMPOUND_2__ID_DESC
   FORWARD_COMPOUND_1_ASC
   FORWARD_COMPOUND_1_DESC
   NATURAL
@@ -471,6 +408,8 @@ type ForwardsEdge {
 enum ForwardsOrderBy {
   FOO_BY_FORWARD_ID__BACKWARD_COMPOUND_1_ASC
   FOO_BY_FORWARD_ID__BACKWARD_COMPOUND_1_DESC
+  FOO_BY_FORWARD_ID__FORWARD_COMPOUND_1_ASC
+  FOO_BY_FORWARD_ID__FORWARD_COMPOUND_1_DESC
   FOO_BY_FORWARD_ID__FORWARD_ID_ASC
   FOO_BY_FORWARD_ID__FORWARD_ID_DESC
   FOO_BY_FORWARD_ID__ID_ASC
@@ -793,6 +732,7 @@ type Query implements Node {
     nodeId: ID!
   ): Foo
   fooByBackwardCompound1AndBackwardCompound2(backwardCompound1: Int!, backwardCompound2: Int!): Foo
+  fooByForwardCompound1AndForwardCompound2(forwardCompound1: Int!, forwardCompound2: Int!): Foo
   fooByForwardId(forwardId: Int!): Foo
   fooById(id: Int!): Foo
 

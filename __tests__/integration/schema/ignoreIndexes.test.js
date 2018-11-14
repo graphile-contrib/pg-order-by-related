@@ -5,6 +5,7 @@ test(
   core.test(["p"], {
     appendPlugins: [require("../../../index.js")],
     disableDefaultMutations: true,
+    legacyRelations: "omit",
     ignoreIndexes: false,
   })
 );
