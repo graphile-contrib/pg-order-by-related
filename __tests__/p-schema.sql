@@ -28,6 +28,7 @@ create table p.foo (
   forward_compound_2 int,
   backward_compound_1 int,
   backward_compound_2 int,
+  unique (forward_compound_1, forward_compound_2),
   unique (backward_compound_1, backward_compound_2),
   foreign key (forward_compound_1, forward_compound_2) references p.forward_compound (forward_compound_1, forward_compound_2)
 );

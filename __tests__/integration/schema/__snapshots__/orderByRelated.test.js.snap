@@ -431,34 +431,8 @@ type Forward implements Node {
 }
 
 type ForwardCompound implements Node {
-  \\"\\"\\"Reads and enables pagination through a set of \`Foo\`.\\"\\"\\"
-  foosByForwardCompound1AndForwardCompound2(
-    \\"\\"\\"Read all values in the set after (below) this cursor.\\"\\"\\"
-    after: Cursor
-
-    \\"\\"\\"Read all values in the set before (above) this cursor.\\"\\"\\"
-    before: Cursor
-
-    \\"\\"\\"
-    A condition to be used in determining which values should be returned by the collection.
-    \\"\\"\\"
-    condition: FooCondition
-
-    \\"\\"\\"Only read the first \`n\` values of the set.\\"\\"\\"
-    first: Int
-
-    \\"\\"\\"Only read the last \`n\` values of the set.\\"\\"\\"
-    last: Int
-
-    \\"\\"\\"
-    Skip the first \`n\` values from our \`after\` cursor, an alternative to cursor
-    based pagination. May not be used with \`last\`.
-    \\"\\"\\"
-    offset: Int
-
-    \\"\\"\\"The method to use when ordering \`Foo\`.\\"\\"\\"
-    orderBy: [FoosOrderBy!] = [PRIMARY_KEY_ASC]
-  ): FoosConnection!
+  \\"\\"\\"Reads a single \`Foo\` that is related to this \`ForwardCompound\`.\\"\\"\\"
+  fooByForwardCompound1AndForwardCompound2: Foo
   forwardCompound1: Int!
   forwardCompound2: Int!
   name: String
@@ -514,6 +488,22 @@ type ForwardCompoundsEdge {
 
 \\"\\"\\"Methods to use when ordering \`ForwardCompound\`.\\"\\"\\"
 enum ForwardCompoundsOrderBy {
+  FOO_BY_FORWARD_COMPOUND_1_AND_FORWARD_COMPOUND_2__BACKWARD_COMPOUND_1_ASC
+  FOO_BY_FORWARD_COMPOUND_1_AND_FORWARD_COMPOUND_2__BACKWARD_COMPOUND_1_DESC
+  FOO_BY_FORWARD_COMPOUND_1_AND_FORWARD_COMPOUND_2__BACKWARD_COMPOUND_2_ASC
+  FOO_BY_FORWARD_COMPOUND_1_AND_FORWARD_COMPOUND_2__BACKWARD_COMPOUND_2_DESC
+  FOO_BY_FORWARD_COMPOUND_1_AND_FORWARD_COMPOUND_2__FORWARD_COMPOUND_1_ASC
+  FOO_BY_FORWARD_COMPOUND_1_AND_FORWARD_COMPOUND_2__FORWARD_COMPOUND_1_DESC
+  FOO_BY_FORWARD_COMPOUND_1_AND_FORWARD_COMPOUND_2__FORWARD_COMPOUND_2_ASC
+  FOO_BY_FORWARD_COMPOUND_1_AND_FORWARD_COMPOUND_2__FORWARD_COMPOUND_2_DESC
+  FOO_BY_FORWARD_COMPOUND_1_AND_FORWARD_COMPOUND_2__FORWARD_ID_ASC
+  FOO_BY_FORWARD_COMPOUND_1_AND_FORWARD_COMPOUND_2__FORWARD_ID_DESC
+  FOO_BY_FORWARD_COMPOUND_1_AND_FORWARD_COMPOUND_2__ID_ASC
+  FOO_BY_FORWARD_COMPOUND_1_AND_FORWARD_COMPOUND_2__ID_DESC
+  FOO_BY_FORWARD_COMPOUND_1_AND_FORWARD_COMPOUND_2__NAME_ASC
+  FOO_BY_FORWARD_COMPOUND_1_AND_FORWARD_COMPOUND_2__NAME_DESC
+  FOO_BY_FORWARD_COMPOUND_1_AND_FORWARD_COMPOUND_2__PARENT_ID_ASC
+  FOO_BY_FORWARD_COMPOUND_1_AND_FORWARD_COMPOUND_2__PARENT_ID_DESC
   FORWARD_COMPOUND_1_ASC
   FORWARD_COMPOUND_1_DESC
   FORWARD_COMPOUND_2_ASC
@@ -933,6 +923,7 @@ type Query implements Node {
     nodeId: ID!
   ): Foo
   fooByBackwardCompound1AndBackwardCompound2(backwardCompound1: Int!, backwardCompound2: Int!): Foo
+  fooByForwardCompound1AndForwardCompound2(forwardCompound1: Int!, forwardCompound2: Int!): Foo
   fooByForwardId(forwardId: Int!): Foo
   fooById(id: Int!): Foo
 
