@@ -36,6 +36,22 @@ query {
       }
     }
   }
+  CHILDREN_BY_FOO_ID__COUNT_ASC: allFoos(orderBy: CHILDREN_BY_FOO_ID__COUNT_ASC) {
+    nodes {
+      id
+      childrenByFooId {
+        totalCount
+      }
+    }
+  },
+  CHILDREN_BY_FOO_ID__COUNT_DESC: allFoos(orderBy: CHILDREN_BY_FOO_ID__COUNT_DESC) {
+    nodes {
+      id
+      childrenByFooId {
+        totalCount
+      }
+    }
+  },
   FORWARD_BY_FORWARD_ID__NAME_ASC: allFoos(orderBy: FORWARD_BY_FORWARD_ID__NAME_ASC) {
     nodes {
       id
