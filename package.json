@@ -16,8 +16,8 @@
   "bugs": {
     "url": "https://github.com/graphile-contrib/pg-order-by-related/issues"
   },
-  "peerDependencies": {
-    "graphile-build-pg": "^4.1.0-rc.0"
+  "dependencies": {
+    "semver": "^5.6.0"
   },
   "devDependencies": {
     "eslint": "^4.0.0",

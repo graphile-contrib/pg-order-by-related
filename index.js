@@ -1,4 +1,28 @@
+const semver = require("semver");
+const {
+  name: packageName,
+  version: packageVersion,
+} = require("./package.json");
+
 module.exports = function PgOrderRelatedColumnsPlugin(builder) {
+  builder.hook("build", build => {
+    const { extend, graphileBuildPgVersion } = build;
+    // Check graphile-build-pg version
+    const graphileBuildPgRange = "^4.1.0-rc.0";
+    if (!semver.satisfies(graphileBuildPgVersion, graphileBuildPgRange)) {
+      throw new Error(
+        `Plugin ${packageName}@${packageVersion} requires graphile-build-pg@${graphileBuildPgRange} (current version: ${graphileBuildPgVersion})`
+      );
+    }
+    // Register plugin version on `build`
+    return extend(build, {
+      pluginVersions: {
+        ...build.pluginVersions,
+        [packageName]: packageVersion,
+      },
+    });
+  });
+
   builder.hook("inflection", inflection => {
     return Object.assign(inflection, {
       orderByRelatedColumnEnum(attr, ascending, foreignTable, keys) {
