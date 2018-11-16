@@ -16,10 +16,10 @@ module.exports = function PgOrderRelatedColumnsPlugin(builder) {
       );
     }
     // Register plugin version on `build`
-    if (!build.pluginVersions) {
-      build.pluginVersions = {};
+    if (!build.versions) {
+      build.versions = {};
     }
-    build.pluginVersions[packageName] = packageVersion;
+    build.versions[packageName] = packageVersion;
     return build;
   });
 
