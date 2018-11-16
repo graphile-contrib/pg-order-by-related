@@ -6,21 +6,21 @@ const {
 
 module.exports = function PgOrderRelatedColumnsPlugin(builder) {
   builder.hook("build", build => {
-    const { extend, graphileBuildPgVersion } = build;
     // Check graphile-build-pg version
     const graphileBuildPgRange = "^4.1.0-rc.0";
-    if (!semver.satisfies(graphileBuildPgVersion, graphileBuildPgRange)) {
+    if (!semver.satisfies(build.graphileBuildPgVersion, graphileBuildPgRange)) {
       throw new Error(
-        `Plugin ${packageName}@${packageVersion} requires graphile-build-pg@${graphileBuildPgRange} (current version: ${graphileBuildPgVersion})`
+        `Plugin ${packageName}@${packageVersion} requires graphile-build-pg@${graphileBuildPgRange} (current version: ${
+          build.graphileBuildPgVersion
+        })`
       );
     }
     // Register plugin version on `build`
-    return extend(build, {
-      pluginVersions: {
-        ...build.pluginVersions,
-        [packageName]: packageVersion,
-      },
-    });
+    if (!build.pluginVersions) {
+      build.pluginVersions = {};
+    }
+    build.pluginVersions[packageName] = packageVersion;
+    return build;
   });
 
   builder.hook("inflection", inflection => {
