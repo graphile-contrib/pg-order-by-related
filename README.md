@@ -2,10 +2,11 @@
 
 This Graphile Engine plugin adds additional enum values to the `orderBy` argument on connections, allowing you to order by columns in related tables.
 
+> Requires `postgraphile@^4.1.0-rc.2` or `graphile-build-pg@^4.1.0-rc.2`
+
 Example:
 
 ```graphql
-
 {
   # additional enum values exposed here 👇
   allPosts(orderBy: PERSON_BY_AUTHOR_ID__CREATED_AT_ASC) {
@@ -23,40 +24,35 @@ Example:
 
 One-to-one and many-to-one relations are supported. For one-to-many relations, `__COUNT_ASC`/`__COUNT_DESC` enums allow ordering by the number of related records.
 
-## Installation
-
-Dependencies: `graphile-build-pg@^4.1.0-rc.0` (`postgraphile@^4.1.0-rc.0`)
-
-```
-yarn add @graphile-contrib/pg-order-by-related
-```
-
 ## Usage
 
-Simply append this plugin and the additional `orderBy` options will be added to your schema.
+Append this plugin and the additional `orderBy` options will be added to your schema.
 
-### Usage - CLI
+### CLI
 
+```bash
+yarn add postgraphile@^4.1.0-rc.2
+yarn add @graphile-contrib/pg-order-by-related
+npx postgraphile --append-plugins @graphile-contrib/pg-order-by-related
 ```
-postgraphile --append-plugins @graphile-contrib/pg-order-by-related -c postgres:///my_db
-```
 
-### Usage - Library
+### Library
 
 ```js
 const express = require("express");
 const { postgraphile } = require("postgraphile");
-const PgOrderByRelated = require("@graphile-contrib/pg-order-by-related");
+const PgOrderByRelatedPlugin = require("@graphile-contrib/pg-order-by-related");
 
 const app = express();
 
 app.use(
   postgraphile(process.env.DATABASE_URL, "app_public", {
-    appendPlugins: [PgOrderByRelated]
+    appendPlugins: [PgOrderByRelatedPlugin],
+    graphiql: true,           
   })
 );
 
-app.listen(process.env.PORT || 3000);
+app.listen(5000);
 ```
 
 ## Inflection
