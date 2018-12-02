@@ -1,25 +1,33 @@
-const semver = require("semver");
-const {
-  name: packageName,
-  version: packageVersion,
-} = require("./package.json");
-
 module.exports = function PgOrderRelatedColumnsPlugin(builder) {
   builder.hook("build", build => {
-    // Check graphile-build-pg version
-    const graphileBuildPgRange = "^4.1.0-rc.0";
-    if (!semver.satisfies(build.graphileBuildPgVersion, graphileBuildPgRange)) {
+    const pkg = require("./package.json");
+
+    // Check dependencies
+    if (!build.versions) {
       throw new Error(
-        `Plugin ${packageName}@${packageVersion} requires graphile-build-pg@${graphileBuildPgRange} (current version: ${
-          build.graphileBuildPgVersion
+        `Plugin ${pkg.name}@${
+          pkg.version
+        } requires graphile-build@^4.1.0-rc.2 in order to check dependencies (current version: ${
+          build.graphileBuildVersion
         })`
       );
     }
-    // Register plugin version on `build`
-    if (!build.versions) {
-      build.versions = {};
-    }
-    build.versions[packageName] = packageVersion;
+    const depends = (name, range) => {
+      if (!build.hasVersion(name, range)) {
+        throw new Error(
+          `Plugin ${pkg.name}@${pkg.version} requires ${name}@${range} (${
+            build.versions[name]
+              ? `current version: ${build.versions[name]}`
+              : "not found"
+          })`
+        );
+      }
+    };
+    depends("graphile-build-pg", "^4.1.0-rc.2");
+
+    // Register this plugin
+    build.versions = build.extend(build.versions, { [pkg.name]: pkg.version });
+
     return build;
   });
 
