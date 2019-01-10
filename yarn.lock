@@ -1467,14 +1467,14 @@ graceful-fs@^4.1.11, graceful-fs@^4.1.2:
   resolved "https://registry.yarnpkg.com/graceful-fs/-/graceful-fs-4.1.11.tgz#0e8bdfe4d1ddb8854d64e04ea7c00e2a026e5658"
   integrity sha1-Dovf5NHduIVNZOBOp8AOKgJuVlg=
 
-graphile-build-pg@4.1.0-rc.3:
-  version "4.1.0-rc.3"
-  resolved "https://registry.yarnpkg.com/graphile-build-pg/-/graphile-build-pg-4.1.0-rc.3.tgz#6ccaeba0703d4c9c0cebd516ddfa201867b7929f"
-  integrity sha512-O/Kk3PkB1JbscmBgy1z8Cj72wOK/RFEjWg5jZlgpqGCPOr+KahQDiNgkAvRlvF1dU94WwprhLlNO53mgMQ1/SA==
+graphile-build-pg@4.1.0:
+  version "4.1.0"
+  resolved "https://registry.yarnpkg.com/graphile-build-pg/-/graphile-build-pg-4.1.0.tgz#036745514fb86d3f90c83d5566f9ea53c4b6f066"
+  integrity sha512-mmUWar1lBdHPZRwquRMdjY87IXE5OPe3dJpd0uiSwhVuZDWBuP5Do7mkgve+gPxCOWyvQ1zILlCW9pxNM7MCUQ==
   dependencies:
     chalk "^2.1.0"
     debug ">=2 <3"
-    graphile-build "4.1.0-rc.3"
+    graphile-build "4.1.0"
     graphql-iso-date "^3.6.0"
     jsonwebtoken "^8.1.1"
     lodash ">=4 <5"
@@ -1482,15 +1482,15 @@ graphile-build-pg@4.1.0-rc.3:
     pg-sql2 "2.2.1"
     postgres-interval "^1.1.1"
 
-graphile-build@4.1.0-rc.3:
-  version "4.1.0-rc.3"
-  resolved "https://registry.yarnpkg.com/graphile-build/-/graphile-build-4.1.0-rc.3.tgz#d470c6967725ff16bf12c806c413b913e9deeeb4"
-  integrity sha512-Bg3TrxD8SycfoHhr94xHqpRmhgRqLDr52FBP6ibf9JaeOb5L5vGnHVop4AVzpFMQOMCEdZ3t0Pg/GvCCkxzxeg==
+graphile-build@4.1.0:
+  version "4.1.0"
+  resolved "https://registry.yarnpkg.com/graphile-build/-/graphile-build-4.1.0.tgz#d1ee6bee8c53ec1b82db3dcd9a343151bdaac8f2"
+  integrity sha512-N1IEmDDgTPIf4jpLVuyhdiuQBpKNu8lMpnVTTmfuYf5GZvGz6hJzTvSZREnIoF3lPQ+JS4zMfb7KuVNOYdYu8Q==
   dependencies:
     "@types/graphql" "^14.0.3"
     chalk "^2.1.0"
     debug ">=2 <3"
-    graphql-parse-resolve-info "4.1.0-rc.3"
+    graphql-parse-resolve-info "4.1.0"
     lodash ">=4 <5"
     lru-cache ">=4 <5"
     pluralize "^7.0.0"
@@ -1501,10 +1501,10 @@ graphql-iso-date@^3.6.0:
   resolved "https://registry.yarnpkg.com/graphql-iso-date/-/graphql-iso-date-3.6.1.tgz#bd2d0dc886e0f954cbbbc496bbf1d480b57ffa96"
   integrity sha512-AwFGIuYMJQXOEAgRlJlFL4H1ncFM8n8XmoVDTNypNOZyQ8LFDG2ppMFlsS862BSTCDcSUfHp8PD3/uJhv7t59Q==
 
-graphql-parse-resolve-info@4.1.0-rc.3:
-  version "4.1.0-rc.3"
-  resolved "https://registry.yarnpkg.com/graphql-parse-resolve-info/-/graphql-parse-resolve-info-4.1.0-rc.3.tgz#b15999d3296ac4845a5e7ba61f67669f6bc63edd"
-  integrity sha512-6Z9JsgC46gNQ/L1vImW+u1oswoXpTgNh2IGUBMVcyAEjU+t5AFDtMz1cMcKkBoj/r0XY+lhsEQbxEelc6RcPkA==
+graphql-parse-resolve-info@4.1.0:
+  version "4.1.0"
+  resolved "https://registry.yarnpkg.com/graphql-parse-resolve-info/-/graphql-parse-resolve-info-4.1.0.tgz#fa52bc9d8aeec210e3ad92cca30d3c36a5e814c3"
+  integrity sha512-qDRgykBm1rbyGAlduPuGtKXHlZtUcNgM8Rg6C/gDVcLww9vNV6h0nmCulpYYPWzATnAVGV8ISnLUDFCU9Y+qcA==
   dependencies:
     "@types/graphql" "^14.0.3"
     debug ">=2 <3"
@@ -3250,14 +3250,14 @@ posix-character-classes@^0.1.0:
   resolved "https://registry.yarnpkg.com/posix-character-classes/-/posix-character-classes-0.1.1.tgz#01eac0fe3b5af71a2a6c02feabb8c1fef7e00eab"
   integrity sha1-AerA/jta9xoqbAL+q7jB/vfgDqs=
 
-postgraphile-core@^4.1.0-rc.2:
-  version "4.1.0-rc.3"
-  resolved "https://registry.yarnpkg.com/postgraphile-core/-/postgraphile-core-4.1.0-rc.3.tgz#d277de48c60f5cdcd93aec239b4c613d42944f58"
-  integrity sha512-ztAEi1wtuqPLYyQv1ni5Vr4eKnOTSd35oUdoWV4tgo13fRpznLAc+r7sAXHHexor6xz/ywKkGkCYkycrcP0Cfg==
+postgraphile-core@4.1.0:
+  version "4.1.0"
+  resolved "https://registry.yarnpkg.com/postgraphile-core/-/postgraphile-core-4.1.0.tgz#9872a6b4211533cc4d93774534aacbdacce79200"
+  integrity sha512-s8CJ5dTCwJd/VIhplAbpWr0Q835MbkRE9Tu0mtnhATqZLDjtGorBROI56qBSJ+OcanRafqzpk+xFZgRwKkQUMw==
   dependencies:
     "@types/graphql" "^14.0.3"
-    graphile-build "4.1.0-rc.3"
-    graphile-build-pg "4.1.0-rc.3"
+    graphile-build "4.1.0"
+    graphile-build-pg "4.1.0"
 
 postgres-array@~1.0.0:
   version "1.0.3"

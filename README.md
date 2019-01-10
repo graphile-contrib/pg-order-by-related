@@ -2,7 +2,7 @@
 
 This Graphile Engine plugin adds additional enum values to the `orderBy` argument on connections, allowing you to order by columns in related tables.
 
-> Requires `postgraphile@^4.1.0-rc.2` or `graphile-build-pg@^4.1.0-rc.2`
+> Requires `postgraphile@^4.1.0` or `graphile-build-pg@^4.1.0`
 
 Example:
 
@@ -31,7 +31,7 @@ Append this plugin and the additional `orderBy` options will be added to your sc
 ### CLI
 
 ```bash
-yarn add postgraphile@^4.1.0-rc.2
+yarn add postgraphile
 yarn add @graphile-contrib/pg-order-by-related
 npx postgraphile --append-plugins @graphile-contrib/pg-order-by-related
 ```
