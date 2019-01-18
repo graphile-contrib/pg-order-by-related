@@ -57,7 +57,7 @@ app.listen(5000);
 
 ## Inflection
 
-To avoid naming conflicts, this plugin uses a `<TABLE>_BY_<KEYS>` naming convention (e.g. `USER_BY_AUTHOR_ID__CREATED_AT_ASC`), similar to how related fields are named by default in PostGraphile v4. 
+To avoid naming conflicts, this plugin uses a `<TABLE>_BY_<KEY>` naming convention (e.g. `USER_BY_AUTHOR_ID__CREATED_AT_ASC`), similar to how related fields are named by default in PostGraphile v4. 
 
 You can override this by adding an inflector plugin. For example, the following plugin shortens the names by dropping the `<TABLE>_BY` portion (producing e.g. `AUTHOR_ID__CREATED_AT_ASC`):
 
@@ -66,9 +66,9 @@ const { makeAddInflectorsPlugin } = require("graphile-utils");
 
 module.exports = makeAddInflectorsPlugin(
   {
-    orderByRelatedColumnEnum(attr, ascending, foreignTable, keys) {
+    orderByRelatedColumnEnum(attr, ascending, foreignTable, keyAttributes) {
       return `${this.constantCase(
-        keys.map(key => this._columnName(key)).join("-and-")
+        keyAttributes.map(keyAttr => this._columnName(keyAttr)).join("-and-")
       )}__${this.orderByColumnEnum(attr, ascending)}`;
     },
   },

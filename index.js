@@ -33,18 +33,20 @@ module.exports = function PgOrderRelatedColumnsPlugin(builder) {
 
   builder.hook("inflection", inflection => {
     return Object.assign(inflection, {
-      orderByRelatedColumnEnum(attr, ascending, foreignTable, keys) {
+      orderByRelatedColumnEnum(attr, ascending, foreignTable, keyAttributes) {
         return `${this.constantCase(
-          `${this._singularizedTableName(foreignTable)}-by-${keys
-            .map(key => this._columnName(key))
+          `${this._singularizedTableName(foreignTable)}-by-${keyAttributes
+            .map(keyAttr => this._columnName(keyAttr))
             .join("-and-")}`
         )}__${this.orderByColumnEnum(attr, ascending)}`;
       },
-      orderByRelatedCountEnum(ascending, foreignTable, keys) {
+      orderByRelatedCountEnum(ascending, foreignTable, keyAttributes) {
         return `${this.constantCase(
           `${this.pluralize(
             this._singularizedTableName(foreignTable)
-          )}-by-${keys.map(key => this._columnName(key)).join("-and-")}`
+          )}-by-${keyAttributes
+            .map(keyAttr => this._columnName(keyAttr))
+            .join("-and-")}`
         )}__${this.constantCase(`count-${ascending ? "asc" : "desc"}`)}`;
       },
     });
@@ -76,41 +78,40 @@ module.exports = function PgOrderRelatedColumnsPlugin(builder) {
         }
         const foreignTable =
           introspectionResultsByKind.classById[foreignConstraint.classId];
+        if (!foreignTable) {
+          throw new Error(
+            `Could not find the foreign table (constraint: ${
+              foreignConstraint.name
+            })`
+          );
+        }
         if (omit(foreignTable, "read")) {
           return memo;
         }
-        const keys = foreignConstraint.foreignKeyAttributes;
-        const foreignKeys = foreignConstraint.keyAttributes;
-        if (!keys.every(_ => _) || !foreignKeys.every(_ => _)) {
-          throw new Error("Could not find key columns!");
-        }
-        if (keys.some(key => omit(key, "read"))) {
+        const keyAttributes = foreignConstraint.foreignKeyAttributes;
+        const foreignKeyAttributes = foreignConstraint.keyAttributes;
+        if (keyAttributes.some(attr => omit(attr, "read"))) {
           return memo;
         }
-        if (foreignKeys.some(key => omit(key, "read"))) {
+        if (foreignKeyAttributes.some(attr => omit(attr, "read"))) {
           return memo;
         }
-        const isUnique = !!foreignTable.constraints.find(
+        const isForeignKeyUnique = !!foreignTable.constraints.find(
           c =>
             (c.type === "p" || c.type === "u") &&
-            c.keyAttributeNums.length === foreignKeys.length &&
-            c.keyAttributeNums.every((n, i) => foreignKeys[i].num === n)
+            c.keyAttributeNums.length === foreignKeyAttributes.length &&
+            c.keyAttributeNums.every(
+              (n, i) => foreignKeyAttributes[i].num === n
+            )
         );
-        if (isUnique) {
-          memo.push({
-            foreignTable,
-            keys,
-            foreignKeys,
-            isBackwardSingle: true,
-          });
-        } else {
-          memo.push({
-            foreignTable,
-            keys,
-            foreignKeys,
-            isBackwardMany: true,
-          });
-        }
+        memo.push({
+          table,
+          keyAttributes,
+          foreignTable,
+          foreignKeyAttributes,
+          foreignConstraint,
+          isOneToMany: !isForeignKeyUnique,
+        });
         return memo;
       }, []);
 
@@ -122,63 +123,68 @@ module.exports = function PgOrderRelatedColumnsPlugin(builder) {
         }
         const foreignTable =
           introspectionResultsByKind.classById[constraint.foreignClassId];
+        if (!foreignTable) {
+          throw new Error(
+            `Could not find the foreign table (constraint: ${constraint.name})`
+          );
+        }
         if (omit(foreignTable, "read")) {
           return memo;
         }
-        const keys = constraint.keyAttributes;
-        const foreignKeys = constraint.foreignKeyAttributes;
-        if (!keys.every(_ => _) || !foreignKeys.every(_ => _)) {
-          throw new Error("Could not find key columns!");
-        }
-        if (keys.some(key => omit(key, "read"))) {
+        const keyAttributes = constraint.keyAttributes;
+        const foreignKeyAttributes = constraint.foreignKeyAttributes;
+        if (keyAttributes.some(attr => omit(attr, "read"))) {
           return memo;
         }
-        if (foreignKeys.some(key => omit(key, "read"))) {
+        if (foreignKeyAttributes.some(attr => omit(attr, "read"))) {
           return memo;
         }
         memo.push({
+          table,
+          keyAttributes,
           foreignTable,
-          keys,
-          foreignKeys,
-          isForward: true,
+          foreignKeyAttributes,
+          constraint,
         });
         return memo;
       }, []);
 
     const orderEnumValuesFromRelationSpec = relationSpec => {
       const {
+        keyAttributes,
         foreignTable,
-        keys,
-        foreignKeys,
+        foreignKeyAttributes,
+        isOneToMany,
         isForward,
-        isBackwardMany,
       } = relationSpec;
 
       const sqlKeysMatch = tableAlias =>
         sql.fragment`(${sql.join(
-          keys.map((key, i) => {
+          keyAttributes.map((attr, i) => {
             return sql.fragment`${tableAlias}.${sql.identifier(
-              key.name
+              attr.name
             )} = ${sql.identifier(
               foreignTable.namespace.name,
               foreignTable.name
-            )}.${sql.identifier(foreignKeys[i].name)}`;
+            )}.${sql.identifier(foreignKeyAttributes[i].name)}`;
           }),
           ") and ("
         )})`;
 
-      const inflectionKeys = isForward ? keys : foreignKeys;
+      const inflectionKeyAttributes = isForward
+        ? keyAttributes
+        : foreignKeyAttributes;
 
-      if (isBackwardMany) {
+      if (!isForward && isOneToMany) {
         const ascEnumName = inflection.orderByRelatedCountEnum(
           true,
           foreignTable,
-          inflectionKeys
+          inflectionKeyAttributes
         );
         const descEnumName = inflection.orderByRelatedCountEnum(
           false,
           foreignTable,
-          inflectionKeys
+          inflectionKeyAttributes
         );
 
         const sqlSubselect = ({ queryBuilder }) => sql.fragment`(
@@ -210,13 +216,13 @@ module.exports = function PgOrderRelatedColumnsPlugin(builder) {
             attr,
             true,
             foreignTable,
-            inflectionKeys
+            inflectionKeyAttributes
           );
           const descEnumName = inflection.orderByRelatedColumnEnum(
             attr,
             false,
             foreignTable,
-            inflectionKeys
+            inflectionKeyAttributes
           );
 
           const sqlSubselect = ({ queryBuilder }) => sql.fragment`(
@@ -273,9 +279,11 @@ module.exports = function PgOrderRelatedColumnsPlugin(builder) {
 
     return extend(
       values,
-      [...forwardRelationSpecs, ...backwardRelationSpecs].reduce(
-        (memo, relationSpec) =>
-          extend(memo, orderEnumValuesFromRelationSpec(relationSpec)),
+      [
+        ...forwardRelationSpecs.map(spec => ({ ...spec, isForward: true })),
+        ...backwardRelationSpecs.map(spec => ({ ...spec, isForward: false })),
+      ].reduce(
+        (memo, spec) => extend(memo, orderEnumValuesFromRelationSpec(spec)),
         {}
       ),
       `Adding related column order values for table '${table.name}'`
