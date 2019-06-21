@@ -52,3 +52,13 @@ create table p.child (
   name text not null,
   foo_id int references p.foo (id)
 );
+
+create function p.forward_computed(forward p.forward) returns text as $$
+  select md5(forward.name);
+$$ language sql stable;
+
+create function p.forward_computed_sortable(forward p.forward) returns text as $$
+  select md5(forward.name);
+$$ language sql stable;
+
+comment on function p.forward_computed_sortable(forward p.forward) is E'@sortable';

@@ -1,5 +1,48 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`computedColumn.graphql 1`] = `
+Object {
+  "data": Object {
+    "FORWARD_BY_FORWARD_ID__COMPUTED_SORTABLE_DESC": Object {
+      "nodes": Array [
+        Object {
+          "forwardByForwardId": null,
+          "id": 5,
+        },
+        Object {
+          "forwardByForwardId": Object {
+            "computedSortable": "c45a10dda8aa9c94e2be36ebf3bf2777",
+            "name": "forward4",
+          },
+          "id": 4,
+        },
+        Object {
+          "forwardByForwardId": Object {
+            "computedSortable": "808e57a7c47cfcdf2e50f840f7cfd9bf",
+            "name": "forward2",
+          },
+          "id": 2,
+        },
+        Object {
+          "forwardByForwardId": Object {
+            "computedSortable": "5a645663be3787e703ef29c971e60109",
+            "name": "forward1",
+          },
+          "id": 1,
+        },
+        Object {
+          "forwardByForwardId": Object {
+            "computedSortable": "57eaeaefca0adb0cd6dd2e8722da24a7",
+            "name": "forward3",
+          },
+          "id": 3,
+        },
+      ],
+    },
+  },
+}
+`;
+
 exports[`order-by-related.graphql 1`] = `
 Object {
   "data": Object {

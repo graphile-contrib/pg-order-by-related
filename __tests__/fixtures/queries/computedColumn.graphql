@@ -1,0 +1,11 @@
+query {
+  FORWARD_BY_FORWARD_ID__COMPUTED_SORTABLE_DESC: allFoos(orderBy: FORWARD_BY_FORWARD_ID__COMPUTED_SORTABLE_DESC) {
+    nodes {
+      id
+      forwardByForwardId {
+        name
+        computedSortable
+      }
+    }
+  }
+}
