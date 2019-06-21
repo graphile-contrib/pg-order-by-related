@@ -23,7 +23,7 @@ module.exports = function PgOrderRelatedColumnsPlugin(builder) {
         );
       }
     };
-    depends("graphile-build-pg", "^4.1.0");
+    depends("graphile-build-pg", "^4.3.1");
 
     // Register this plugin
     build.versions = build.extend(build.versions, { [pkg.name]: pkg.version });
@@ -39,6 +39,24 @@ module.exports = function PgOrderRelatedColumnsPlugin(builder) {
             .map(keyAttr => this._columnName(keyAttr))
             .join("-and-")}`
         )}__${this.orderByColumnEnum(attr, ascending)}`;
+      },
+      orderByRelatedComputedColumnEnum(
+        pseudoColumnName,
+        proc,
+        ascending,
+        foreignTable,
+        keyAttributes
+      ) {
+        return `${this.constantCase(
+          `${this._singularizedTableName(foreignTable)}-by-${keyAttributes
+            .map(keyAttr => this._columnName(keyAttr))
+            .join("-and-")}`
+        )}__${this.orderByComputedColumnEnum(
+          pseudoColumnName,
+          proc,
+          foreignTable,
+          ascending
+        )}`;
       },
       orderByRelatedCountEnum(ascending, foreignTable, keyAttributes) {
         return `${this.constantCase(
@@ -208,7 +226,7 @@ module.exports = function PgOrderRelatedColumnsPlugin(builder) {
           },
         };
       } else {
-        return foreignTable.attributes.reduce((memo, attr) => {
+        const enumValues = foreignTable.attributes.reduce((memo, attr) => {
           if (!pgColumnFilter(attr, build, context)) return memo;
           if (omit(attr, "order")) return memo;
 
@@ -274,6 +292,106 @@ module.exports = function PgOrderRelatedColumnsPlugin(builder) {
           );
           return memo;
         }, {});
+
+        const computedColumnEnumValues = introspectionResultsByKind.procedure.reduce(
+          (memo, proc) => {
+            // Must be marked @sortable
+            if (!proc.tags.sortable) return memo;
+
+            // Must not be omitted
+            if (omit(proc, "execute")) return memo;
+            if (omit(proc, "order")) return memo;
+
+            // Must be a computed column
+            const computedColumnDetails = getComputedColumnDetails(
+              build,
+              foreignTable,
+              proc
+            );
+            if (!computedColumnDetails) return memo;
+            const { pseudoColumnName } = computedColumnDetails;
+
+            // Must have only one required argument
+            const nonOptionalArgumentsCount =
+              proc.argDefaultsNum - proc.inputArgsCount;
+            if (nonOptionalArgumentsCount > 1) {
+              return memo;
+            }
+
+            // Must return a scalar or an array
+            if (proc.returnsSet) return memo;
+            const returnType =
+              introspectionResultsByKind.typeById[proc.returnTypeId];
+            const returnTypeTable =
+              introspectionResultsByKind.classById[returnType.classId];
+            if (returnTypeTable) return memo;
+            const isRecordLike = returnType.id === "2249";
+            if (isRecordLike) return memo;
+            const isVoid = String(returnType.id) === "2278";
+            if (isVoid) return memo;
+
+            // Looks good
+            const ascEnumName = inflection.orderByRelatedComputedColumnEnum(
+              pseudoColumnName,
+              proc,
+              true,
+              foreignTable,
+              inflectionKeyAttributes
+            );
+            const descEnumName = inflection.orderByRelatedComputedColumnEnum(
+              pseudoColumnName,
+              proc,
+              false,
+              foreignTable,
+              inflectionKeyAttributes
+            );
+
+            const sqlSubselect = ({ queryBuilder }) => sql.fragment`(
+            select ${sql.identifier(
+              proc.namespace.name,
+              proc.name
+            )}(${sql.identifier(foreignTable.name)})
+            from ${sql.identifier(
+              foreignTable.namespace.name,
+              foreignTable.name
+            )}
+            where ${sqlKeysMatch(queryBuilder.getTableAlias())}
+            )`;
+
+            memo = extend(
+              memo,
+              {
+                [ascEnumName]: {
+                  value: {
+                    alias: ascEnumName.toLowerCase(),
+                    specs: [[sqlSubselect, true]],
+                  },
+                },
+              },
+              `Adding ascending orderBy enum value for ${describePgEntity(
+                proc
+              )}.`
+            );
+            memo = extend(
+              memo,
+              {
+                [descEnumName]: {
+                  value: {
+                    alias: descEnumName.toLowerCase(),
+                    specs: [[sqlSubselect, false]],
+                  },
+                },
+              },
+              `Adding descending orderBy enum value for ${describePgEntity(
+                proc
+              )}.`
+            );
+            return memo;
+          },
+          {}
+        );
+
+        return extend(enumValues, computedColumnEnumValues);
       }
     };
 
@@ -289,4 +407,36 @@ module.exports = function PgOrderRelatedColumnsPlugin(builder) {
       `Adding related column order values for table '${table.name}'`
     );
   });
+
+  function getComputedColumnDetails(build, table, proc) {
+    if (!proc.isStable) return null;
+    if (proc.namespaceId !== table.namespaceId) return null;
+    if (!proc.name.startsWith(`${table.name}_`)) return null;
+    if (proc.argTypeIds.length < 1) return null;
+    if (proc.argTypeIds[0] !== table.type.id) return null;
+
+    const argTypes = proc.argTypeIds.reduce((prev, typeId, idx) => {
+      if (
+        proc.argModes.length === 0 || // all args are `in`
+        proc.argModes[idx] === "i" || // this arg is `in`
+        proc.argModes[idx] === "b" // this arg is `inout`
+      ) {
+        prev.push(build.pgIntrospectionResultsByKind.typeById[typeId]);
+      }
+      return prev;
+    }, []);
+    if (
+      argTypes
+        .slice(1)
+        .some(
+          type => type.type === "c" && type.class && type.class.isSelectable
+        )
+    ) {
+      // Accepts two input tables? Skip.
+      return null;
+    }
+
+    const pseudoColumnName = proc.name.substr(table.name.length + 1);
+    return { argTypes, pseudoColumnName };
+  }
 };
