@@ -4,7 +4,7 @@
 
 This Graphile Engine plugin adds additional enum values to the `orderBy` argument on connections, allowing you to order by columns in related tables.
 
-> Requires `postgraphile@^4.1.0` or `graphile-build-pg@^4.1.0`
+> Requires `postgraphile@^4.3.1` or `graphile-build-pg@^4.3.1`
 
 Example:
 
