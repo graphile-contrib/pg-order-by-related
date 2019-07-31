@@ -27,14 +27,21 @@ beforeAll(() => {
     // Different fixtures need different schemas with different configurations.
     // Make all of the different schemas with different configurations that we
     // need and wait for them to be created in parallel.
-    const [normal] = await Promise.all([
+    const [normal, columnAggregates] = await Promise.all([
       createPostGraphileSchema(pgClient, ["p"], {
         appendPlugins: [require("../../index.js")],
+      }),
+      createPostGraphileSchema(pgClient, ["p"], {
+        appendPlugins: [require("../../index.js")],
+        graphileBuildOptions: {
+          orderByRelatedColumnAggregates: true,
+        },
       }),
     ]);
     debug(printSchema(normal));
     return {
       normal,
+      columnAggregates,
     };
   });
 
@@ -61,7 +68,9 @@ beforeAll(() => {
           // Get the appropriate GraphQL schema for this fixture. We want to test
           // some specific fixtures against a schema configured slightly
           // differently.
-          const schemas = {};
+          const schemas = {
+            "columnAggregates.graphql": gqlSchemas.columnAggregates,
+          };
           const gqlSchema = schemas[fileName]
             ? schemas[fileName]
             : gqlSchemas.normal;
