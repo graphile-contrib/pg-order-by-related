@@ -1,5 +1,204 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`columnAggregates.graphql 1`] = `
+Object {
+  "data": Object {
+    "CHILDREN_BY_FOO_ID__MAX_NAME_ASC": Object {
+      "nodes": Array [
+        Object {
+          "childrenByFooId": Object {
+            "nodes": Array [
+              Object {
+                "name": "child1",
+              },
+              Object {
+                "name": "child2",
+              },
+            ],
+          },
+          "id": 1,
+        },
+        Object {
+          "childrenByFooId": Object {
+            "nodes": Array [
+              Object {
+                "name": "child3",
+              },
+              Object {
+                "name": "child4",
+              },
+            ],
+          },
+          "id": 2,
+        },
+        Object {
+          "childrenByFooId": Object {
+            "nodes": Array [],
+          },
+          "id": 3,
+        },
+        Object {
+          "childrenByFooId": Object {
+            "nodes": Array [],
+          },
+          "id": 4,
+        },
+        Object {
+          "childrenByFooId": Object {
+            "nodes": Array [],
+          },
+          "id": 5,
+        },
+      ],
+    },
+    "CHILDREN_BY_FOO_ID__MAX_NAME_DESC": Object {
+      "nodes": Array [
+        Object {
+          "childrenByFooId": Object {
+            "nodes": Array [],
+          },
+          "id": 3,
+        },
+        Object {
+          "childrenByFooId": Object {
+            "nodes": Array [],
+          },
+          "id": 4,
+        },
+        Object {
+          "childrenByFooId": Object {
+            "nodes": Array [],
+          },
+          "id": 5,
+        },
+        Object {
+          "childrenByFooId": Object {
+            "nodes": Array [
+              Object {
+                "name": "child3",
+              },
+              Object {
+                "name": "child4",
+              },
+            ],
+          },
+          "id": 2,
+        },
+        Object {
+          "childrenByFooId": Object {
+            "nodes": Array [
+              Object {
+                "name": "child1",
+              },
+              Object {
+                "name": "child2",
+              },
+            ],
+          },
+          "id": 1,
+        },
+      ],
+    },
+    "CHILDREN_BY_FOO_ID__MIN_ID_ASC": Object {
+      "nodes": Array [
+        Object {
+          "childrenByFooId": Object {
+            "nodes": Array [
+              Object {
+                "id": 1,
+              },
+              Object {
+                "id": 2,
+              },
+            ],
+          },
+          "id": 1,
+        },
+        Object {
+          "childrenByFooId": Object {
+            "nodes": Array [
+              Object {
+                "id": 3,
+              },
+              Object {
+                "id": 4,
+              },
+            ],
+          },
+          "id": 2,
+        },
+        Object {
+          "childrenByFooId": Object {
+            "nodes": Array [],
+          },
+          "id": 3,
+        },
+        Object {
+          "childrenByFooId": Object {
+            "nodes": Array [],
+          },
+          "id": 4,
+        },
+        Object {
+          "childrenByFooId": Object {
+            "nodes": Array [],
+          },
+          "id": 5,
+        },
+      ],
+    },
+    "CHILDREN_BY_FOO_ID__MIN_ID_DESC": Object {
+      "nodes": Array [
+        Object {
+          "childrenByFooId": Object {
+            "nodes": Array [],
+          },
+          "id": 3,
+        },
+        Object {
+          "childrenByFooId": Object {
+            "nodes": Array [],
+          },
+          "id": 4,
+        },
+        Object {
+          "childrenByFooId": Object {
+            "nodes": Array [],
+          },
+          "id": 5,
+        },
+        Object {
+          "childrenByFooId": Object {
+            "nodes": Array [
+              Object {
+                "id": 3,
+              },
+              Object {
+                "id": 4,
+              },
+            ],
+          },
+          "id": 2,
+        },
+        Object {
+          "childrenByFooId": Object {
+            "nodes": Array [
+              Object {
+                "id": 1,
+              },
+              Object {
+                "id": 2,
+              },
+            ],
+          },
+          "id": 1,
+        },
+      ],
+    },
+  },
+}
+`;
+
 exports[`computedColumn.graphql 1`] = `
 Object {
   "data": Object {

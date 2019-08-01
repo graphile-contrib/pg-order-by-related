@@ -1,4 +1,7 @@
-module.exports = function PgOrderRelatedColumnsPlugin(builder) {
+module.exports = function PgOrderRelatedColumnsPlugin(
+  builder,
+  { orderByRelatedColumnAggregates }
+) {
   builder.hook("build", build => {
     const pkg = require("./package.json");
 
@@ -66,6 +69,24 @@ module.exports = function PgOrderRelatedColumnsPlugin(builder) {
             .map(keyAttr => this._columnName(keyAttr))
             .join("-and-")}`
         )}__${this.constantCase(`count-${ascending ? "asc" : "desc"}`)}`;
+      },
+      orderByRelatedColumnAggregateEnum(
+        attr,
+        ascending,
+        foreignTable,
+        keyAttributes,
+        aggregateName
+      ) {
+        return `${this.constantCase(
+          `${this.pluralize(
+            this._singularizedTableName(foreignTable)
+          )}-by-${keyAttributes
+            .map(keyAttr => this._columnName(keyAttr))
+            .join("-and-")}`
+        )}__${this.constantCase(aggregateName)}_${this.orderByColumnEnum(
+          attr,
+          ascending
+        )}`;
       },
     });
   });
@@ -193,7 +214,10 @@ module.exports = function PgOrderRelatedColumnsPlugin(builder) {
         ? keyAttributes
         : foreignKeyAttributes;
 
+      const enumValues = {};
+
       if (!isForward && isOneToMany) {
+        // Count
         const ascEnumName = inflection.orderByRelatedCountEnum(
           true,
           foreignTable,
@@ -204,14 +228,12 @@ module.exports = function PgOrderRelatedColumnsPlugin(builder) {
           foreignTable,
           inflectionKeyAttributes
         );
-
         const sqlSubselect = ({ queryBuilder }) => sql.fragment`(
           select count(*)
           from ${sql.identifier(foreignTable.namespace.name, foreignTable.name)}
           where ${sqlKeysMatch(queryBuilder.getTableAlias())}
           )`;
-
-        return {
+        const countEnumValues = {
           [ascEnumName]: {
             value: {
               alias: ascEnumName.toLowerCase(),
@@ -225,25 +247,82 @@ module.exports = function PgOrderRelatedColumnsPlugin(builder) {
             },
           },
         };
+        extend(enumValues, countEnumValues);
+
+        if (orderByRelatedColumnAggregates) {
+          // Column aggregates
+          const columnAggregateEnumValues = foreignTable.attributes.reduce(
+            (memo, attr) => {
+              if (!pgColumnFilter(attr, build, context)) return memo;
+              if (omit(attr, "order")) return memo;
+
+              for (const aggregateName of ["max", "min"]) {
+                const ascEnumName = inflection.orderByRelatedColumnAggregateEnum(
+                  attr,
+                  true,
+                  foreignTable,
+                  inflectionKeyAttributes,
+                  aggregateName
+                );
+                const descEnumName = inflection.orderByRelatedColumnAggregateEnum(
+                  attr,
+                  false,
+                  foreignTable,
+                  inflectionKeyAttributes,
+                  aggregateName
+                );
+
+                const sqlSubselect = ({ queryBuilder }) => sql.fragment`(
+              select ${sql.raw(aggregateName)}(${sql.identifier(attr.name)})
+              from ${sql.identifier(
+                foreignTable.namespace.name,
+                foreignTable.name
+              )}
+              where ${sqlKeysMatch(queryBuilder.getTableAlias())}
+              )`;
+
+                memo = extend(memo, {
+                  [ascEnumName]: {
+                    value: {
+                      alias: ascEnumName.toLowerCase(),
+                      specs: [[sqlSubselect, true]],
+                    },
+                  },
+                  [descEnumName]: {
+                    value: {
+                      alias: descEnumName.toLowerCase(),
+                      specs: [[sqlSubselect, false]],
+                    },
+                  },
+                });
+              }
+              return memo;
+            },
+            {}
+          );
+          extend(enumValues, columnAggregateEnumValues);
+        }
       } else {
-        const enumValues = foreignTable.attributes.reduce((memo, attr) => {
-          if (!pgColumnFilter(attr, build, context)) return memo;
-          if (omit(attr, "order")) return memo;
+        // Columns
+        const columnEnumValues = foreignTable.attributes.reduce(
+          (memo, attr) => {
+            if (!pgColumnFilter(attr, build, context)) return memo;
+            if (omit(attr, "order")) return memo;
 
-          const ascEnumName = inflection.orderByRelatedColumnEnum(
-            attr,
-            true,
-            foreignTable,
-            inflectionKeyAttributes
-          );
-          const descEnumName = inflection.orderByRelatedColumnEnum(
-            attr,
-            false,
-            foreignTable,
-            inflectionKeyAttributes
-          );
+            const ascEnumName = inflection.orderByRelatedColumnEnum(
+              attr,
+              true,
+              foreignTable,
+              inflectionKeyAttributes
+            );
+            const descEnumName = inflection.orderByRelatedColumnEnum(
+              attr,
+              false,
+              foreignTable,
+              inflectionKeyAttributes
+            );
 
-          const sqlSubselect = ({ queryBuilder }) => sql.fragment`(
+            const sqlSubselect = ({ queryBuilder }) => sql.fragment`(
             select ${sql.identifier(attr.name)}
             from ${sql.identifier(
               foreignTable.namespace.name,
@@ -252,47 +331,51 @@ module.exports = function PgOrderRelatedColumnsPlugin(builder) {
             where ${sqlKeysMatch(queryBuilder.getTableAlias())}
             )`;
 
-          memo = extend(
-            memo,
-            {
-              [ascEnumName]: {
-                value: {
-                  alias: ascEnumName.toLowerCase(),
-                  specs: [[sqlSubselect, true]],
+            memo = extend(
+              memo,
+              {
+                [ascEnumName]: {
+                  value: {
+                    alias: ascEnumName.toLowerCase(),
+                    specs: [[sqlSubselect, true]],
+                  },
                 },
               },
-            },
-            `Adding ascending orderBy enum value for ${describePgEntity(
-              attr
-            )}. You can rename this field with:\n\n  ${sqlCommentByAddingTags(
-              attr,
+              `Adding ascending orderBy enum value for ${describePgEntity(
+                attr
+              )}. You can rename this field with:\n\n  ${sqlCommentByAddingTags(
+                attr,
+                {
+                  name: "newNameHere",
+                }
+              )}`
+            );
+            memo = extend(
+              memo,
               {
-                name: "newNameHere",
-              }
-            )}`
-          );
-          memo = extend(
-            memo,
-            {
-              [descEnumName]: {
-                value: {
-                  alias: descEnumName.toLowerCase(),
-                  specs: [[sqlSubselect, false]],
+                [descEnumName]: {
+                  value: {
+                    alias: descEnumName.toLowerCase(),
+                    specs: [[sqlSubselect, false]],
+                  },
                 },
               },
-            },
-            `Adding descending orderBy enum value for ${describePgEntity(
-              attr
-            )}. You can rename this field with:\n\n  ${sqlCommentByAddingTags(
-              attr,
-              {
-                name: "newNameHere",
-              }
-            )}`
-          );
-          return memo;
-        }, {});
+              `Adding descending orderBy enum value for ${describePgEntity(
+                attr
+              )}. You can rename this field with:\n\n  ${sqlCommentByAddingTags(
+                attr,
+                {
+                  name: "newNameHere",
+                }
+              )}`
+            );
+            return memo;
+          },
+          {}
+        );
+        extend(enumValues, columnEnumValues);
 
+        // Computed columns
         const computedColumnEnumValues = introspectionResultsByKind.procedure.reduce(
           (memo, proc) => {
             // Must be marked @sortable
@@ -390,9 +473,10 @@ module.exports = function PgOrderRelatedColumnsPlugin(builder) {
           },
           {}
         );
-
-        return extend(enumValues, computedColumnEnumValues);
+        extend(enumValues, computedColumnEnumValues);
       }
+
+      return enumValues;
     };
 
     return extend(

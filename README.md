@@ -79,3 +79,43 @@ module.exports = makeAddInflectorsPlugin(
 ```
 
 See the [makeAddInflectorsPlugin documentation](https://www.graphile.org/postgraphile/make-add-inflectors-plugin/) for more information.
+
+## Options
+
+When using PostGraphile as a library, the following options can be specified via `graphileBuildOptions`.
+
+### orderByRelatedColumnAggregates
+
+Adds additional enum values for column aggregates (currently `min` and `max`) for one-to-many relationships.
+
+Example:
+
+```js
+postgraphile(pgConfig, schema, {
+  graphileBuildOptions: {
+    orderByRelatedColumnAggregates: true,
+  },
+})
+```
+
+```graphql
+{
+  allPersons(orderBy: POSTS_BY_AUTHOR_ID__MAX_CREATED_AT_ASC, first: 10) {
+    nodes {
+      id
+      name
+    }
+  }
+}
+```
+
+## Development
+
+To establish a test environment, create an empty PostgreSQL database and set a `TEST_DATABASE_URL` environment variable with your database connection string.
+
+```bash
+createdb graphile_test
+export TEST_DATABASE_URL=postgres://localhost:5432/graphile_test
+yarn
+yarn test
+```
