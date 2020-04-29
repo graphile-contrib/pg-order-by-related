@@ -34,7 +34,9 @@ module.exports = function PgOrderRelatedColumnsPlugin(
     return Object.assign(inflection, {
       orderByRelatedColumnEnum(attr, ascending, foreignTable, keyAttributes) {
         return `${this.constantCase(
-          `${this._singularizedTableName(foreignTable)}-by-${keyAttributes
+          `${this._singularizedTableName(
+            foreignTable
+          )}-by-${keyAttributes
             .map(keyAttr => this._columnName(keyAttr))
             .join("-and-")}`
         )}__${this.orderByColumnEnum(attr, ascending)}`;
@@ -47,7 +49,9 @@ module.exports = function PgOrderRelatedColumnsPlugin(
         keyAttributes
       ) {
         return `${this.constantCase(
-          `${this._singularizedTableName(foreignTable)}-by-${keyAttributes
+          `${this._singularizedTableName(
+            foreignTable
+          )}-by-${keyAttributes
             .map(keyAttr => this._columnName(keyAttr))
             .join("-and-")}`
         )}__${this.orderByComputedColumnEnum(

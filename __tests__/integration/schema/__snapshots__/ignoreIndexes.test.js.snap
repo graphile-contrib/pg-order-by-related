@@ -53,7 +53,7 @@ type BackwardCompoundsConnection {
   \\"\\"\\"
   The count of *all* \`BackwardCompound\` you could get from the connection.
   \\"\\"\\"
-  totalCount: Int
+  totalCount: Int!
 }
 
 \\"\\"\\"A \`BackwardCompound\` edge in the connection.\\"\\"\\"
@@ -108,7 +108,7 @@ type BackwardsConnection {
   pageInfo: PageInfo!
 
   \\"\\"\\"The count of *all* \`Backward\` you could get from the connection.\\"\\"\\"
-  totalCount: Int
+  totalCount: Int!
 }
 
 \\"\\"\\"A \`Backward\` edge in the connection.\\"\\"\\"
@@ -172,7 +172,7 @@ type ChildrenConnection {
   pageInfo: PageInfo!
 
   \\"\\"\\"The count of *all* \`Child\` you could get from the connection.\\"\\"\\"
-  totalCount: Int
+  totalCount: Int!
 }
 
 \\"\\"\\"A \`Child\` edge in the connection.\\"\\"\\"
@@ -254,7 +254,7 @@ type FoosConnection {
   pageInfo: PageInfo!
 
   \\"\\"\\"The count of *all* \`Foo\` you could get from the connection.\\"\\"\\"
-  totalCount: Int
+  totalCount: Int!
 }
 
 \\"\\"\\"A \`Foo\` edge in the connection.\\"\\"\\"
@@ -346,7 +346,7 @@ type ForwardCompoundsConnection {
   \\"\\"\\"
   The count of *all* \`ForwardCompound\` you could get from the connection.
   \\"\\"\\"
-  totalCount: Int
+  totalCount: Int!
 }
 
 \\"\\"\\"A \`ForwardCompound\` edge in the connection.\\"\\"\\"
@@ -397,7 +397,7 @@ type ForwardsConnection {
   pageInfo: PageInfo!
 
   \\"\\"\\"The count of *all* \`Forward\` you could get from the connection.\\"\\"\\"
-  totalCount: Int
+  totalCount: Int!
 }
 
 \\"\\"\\"A \`Forward\` edge in the connection.\\"\\"\\"
@@ -483,7 +483,7 @@ type ParentsConnection {
   pageInfo: PageInfo!
 
   \\"\\"\\"The count of *all* \`Parent\` you could get from the connection.\\"\\"\\"
-  totalCount: Int
+  totalCount: Int!
 }
 
 \\"\\"\\"A \`Parent\` edge in the connection.\\"\\"\\"
