@@ -50,7 +50,7 @@ const app = express();
 app.use(
   postgraphile(process.env.DATABASE_URL, "app_public", {
     appendPlugins: [PgOrderByRelatedPlugin],
-    graphiql: true,           
+    graphiql: true,
   })
 );
 
@@ -59,7 +59,7 @@ app.listen(5000);
 
 ## Inflection
 
-To avoid naming conflicts, this plugin uses a `<TABLE>_BY_<KEY>` naming convention (e.g. `USER_BY_AUTHOR_ID__CREATED_AT_ASC`), similar to how related fields are named by default in PostGraphile v4. 
+To avoid naming conflicts, this plugin uses a `<TABLE>_BY_<KEY>` naming convention (e.g. `USER_BY_AUTHOR_ID__CREATED_AT_ASC`), similar to how related fields are named by default in PostGraphile v4.
 
 You can override this by adding an inflector plugin. For example, the following plugin shortens the names by dropping the `<TABLE>_BY` portion (producing e.g. `AUTHOR_ID__CREATED_AT_ASC`):
 
@@ -95,7 +95,7 @@ postgraphile(pgConfig, schema, {
   graphileBuildOptions: {
     orderByRelatedColumnAggregates: true,
   },
-})
+});
 ```
 
 ```graphql
