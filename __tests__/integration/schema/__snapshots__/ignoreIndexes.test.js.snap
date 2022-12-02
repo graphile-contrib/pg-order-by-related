@@ -29,7 +29,8 @@ type BackwardCompound implements Node {
 }
 
 """
-A condition to be used against \`BackwardCompound\` object types. All fields are tested for equality and combined with a logical ‘and.’
+A condition to be used against \`BackwardCompound\` object types. All fields are
+tested for equality and combined with a logical ‘and.’
 """
 input BackwardCompoundCondition {
   """Checks for equality with the object’s \`backwardCompound1\` field."""
@@ -82,7 +83,8 @@ enum BackwardCompoundsOrderBy {
 }
 
 """
-A condition to be used against \`Backward\` object types. All fields are tested for equality and combined with a logical ‘and.’
+A condition to be used against \`Backward\` object types. All fields are tested
+for equality and combined with a logical ‘and.’
 """
 input BackwardCondition {
   """Checks for equality with the object’s \`fooId\` field."""
@@ -320,7 +322,8 @@ type ForwardCompound implements Node {
 }
 
 """
-A condition to be used against \`ForwardCompound\` object types. All fields are tested for equality and combined with a logical ‘and.’
+A condition to be used against \`ForwardCompound\` object types. All fields are
+tested for equality and combined with a logical ‘and.’
 """
 input ForwardCompoundCondition {
   """Checks for equality with the object’s \`forwardCompound1\` field."""
@@ -523,7 +526,8 @@ type Query implements Node {
     last: Int
 
     """
-    Skip the first \`n\` values from our \`after\` cursor, an alternative to cursor based pagination. May not be used with \`last\`.
+    Skip the first \`n\` values from our \`after\` cursor, an alternative to cursor
+    based pagination. May not be used with \`last\`.
     """
     offset: Int
 
@@ -551,7 +555,8 @@ type Query implements Node {
     last: Int
 
     """
-    Skip the first \`n\` values from our \`after\` cursor, an alternative to cursor based pagination. May not be used with \`last\`.
+    Skip the first \`n\` values from our \`after\` cursor, an alternative to cursor
+    based pagination. May not be used with \`last\`.
     """
     offset: Int
 
@@ -579,7 +584,8 @@ type Query implements Node {
     last: Int
 
     """
-    Skip the first \`n\` values from our \`after\` cursor, an alternative to cursor based pagination. May not be used with \`last\`.
+    Skip the first \`n\` values from our \`after\` cursor, an alternative to cursor
+    based pagination. May not be used with \`last\`.
     """
     offset: Int
 
@@ -607,7 +613,8 @@ type Query implements Node {
     last: Int
 
     """
-    Skip the first \`n\` values from our \`after\` cursor, an alternative to cursor based pagination. May not be used with \`last\`.
+    Skip the first \`n\` values from our \`after\` cursor, an alternative to cursor
+    based pagination. May not be used with \`last\`.
     """
     offset: Int
 
@@ -635,7 +642,8 @@ type Query implements Node {
     last: Int
 
     """
-    Skip the first \`n\` values from our \`after\` cursor, an alternative to cursor based pagination. May not be used with \`last\`.
+    Skip the first \`n\` values from our \`after\` cursor, an alternative to cursor
+    based pagination. May not be used with \`last\`.
     """
     offset: Int
 
@@ -663,7 +671,8 @@ type Query implements Node {
     last: Int
 
     """
-    Skip the first \`n\` values from our \`after\` cursor, an alternative to cursor based pagination. May not be used with \`last\`.
+    Skip the first \`n\` values from our \`after\` cursor, an alternative to cursor
+    based pagination. May not be used with \`last\`.
     """
     offset: Int
 
@@ -691,7 +700,8 @@ type Query implements Node {
     last: Int
 
     """
-    Skip the first \`n\` values from our \`after\` cursor, an alternative to cursor based pagination. May not be used with \`last\`.
+    Skip the first \`n\` values from our \`after\` cursor, an alternative to cursor
+    based pagination. May not be used with \`last\`.
     """
     offset: Int
 
@@ -768,7 +778,8 @@ type Query implements Node {
   parentById(id: Int!): Parent
 
   """
-  Exposes the root query type nested one level down. This is helpful for Relay 1 which can only query top level fields if they are in a particular form.
+  Exposes the root query type nested one level down. This is helpful for Relay 1
+  which can only query top level fields if they are in a particular form.
   """
   query: Query!
 }
