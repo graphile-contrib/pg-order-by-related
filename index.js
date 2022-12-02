@@ -1,7 +1,4 @@
-module.exports = function PgOrderRelatedColumnsPlugin(
-  builder,
-  { orderByRelatedColumnAggregates }
-) {
+function PgOrderByRelatedPlugin(builder, { orderByRelatedColumnAggregates }) {
   builder.hook("build", (build) => {
     const pkg = require("./package.json");
 
@@ -517,4 +514,9 @@ module.exports = function PgOrderRelatedColumnsPlugin(
     const pseudoColumnName = proc.name.substr(table.name.length + 1);
     return { argTypes, pseudoColumnName };
   }
-};
+}
+
+module.exports = PgOrderByRelatedPlugin;
+// Hacks for TypeScript/Babel import
+module.exports.default = PgOrderByRelatedPlugin;
+Object.defineProperty(module.exports, "__esModule", { value: true });

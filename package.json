@@ -3,6 +3,7 @@
   "version": "1.0.0-beta.6",
   "description": "Order by related columns on PostGraphile connections",
   "main": "index.js",
+  "types": "index.d.ts",
   "scripts": {
     "format": "prettier --ignore-path ./.eslintignore",
     "format:all": "yarn format '**/*.{json,md,html,js,jsx,ts,tsx}'",
@@ -35,9 +36,7 @@
     "testRegex": "__tests__/.*\\.test\\.js$"
   },
   "files": [
-    "index.js"
-  ],
-  "engines": {
-    "node": ">=10"
-  }
+    "index.js",
+    "index.d.ts"
+  ]
 }
