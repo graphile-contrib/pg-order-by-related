@@ -2,7 +2,7 @@ module.exports = function PgOrderRelatedColumnsPlugin(
   builder,
   { orderByRelatedColumnAggregates }
 ) {
-  builder.hook("build", build => {
+  builder.hook("build", (build) => {
     const pkg = require("./package.json");
 
     // Check dependencies
@@ -30,14 +30,12 @@ module.exports = function PgOrderRelatedColumnsPlugin(
     return build;
   });
 
-  builder.hook("inflection", inflection => {
+  builder.hook("inflection", (inflection) => {
     return Object.assign(inflection, {
       orderByRelatedColumnEnum(attr, ascending, foreignTable, keyAttributes) {
         return `${this.constantCase(
-          `${this._singularizedTableName(
-            foreignTable
-          )}-by-${keyAttributes
-            .map(keyAttr => this._columnName(keyAttr))
+          `${this._singularizedTableName(foreignTable)}-by-${keyAttributes
+            .map((keyAttr) => this._columnName(keyAttr))
             .join("-and-")}`
         )}__${this.orderByColumnEnum(attr, ascending)}`;
       },
@@ -49,10 +47,8 @@ module.exports = function PgOrderRelatedColumnsPlugin(
         keyAttributes
       ) {
         return `${this.constantCase(
-          `${this._singularizedTableName(
-            foreignTable
-          )}-by-${keyAttributes
-            .map(keyAttr => this._columnName(keyAttr))
+          `${this._singularizedTableName(foreignTable)}-by-${keyAttributes
+            .map((keyAttr) => this._columnName(keyAttr))
             .join("-and-")}`
         )}__${this.orderByComputedColumnEnum(
           pseudoColumnName,
@@ -66,7 +62,7 @@ module.exports = function PgOrderRelatedColumnsPlugin(
           `${this.pluralize(
             this._singularizedTableName(foreignTable)
           )}-by-${keyAttributes
-            .map(keyAttr => this._columnName(keyAttr))
+            .map((keyAttr) => this._columnName(keyAttr))
             .join("-and-")}`
         )}__${this.constantCase(`count-${ascending ? "asc" : "desc"}`)}`;
       },
@@ -81,7 +77,7 @@ module.exports = function PgOrderRelatedColumnsPlugin(
           `${this.pluralize(
             this._singularizedTableName(foreignTable)
           )}-by-${keyAttributes
-            .map(keyAttr => this._columnName(keyAttr))
+            .map((keyAttr) => this._columnName(keyAttr))
             .join("-and-")}`
         )}__${this.constantCase(aggregateName)}_${this.orderByColumnEnum(
           attr,
@@ -110,7 +106,7 @@ module.exports = function PgOrderRelatedColumnsPlugin(
     }
 
     const backwardRelationSpecs = table.foreignConstraints
-      .filter(con => con.type === "f")
+      .filter((con) => con.type === "f")
       .reduce((memo, foreignConstraint) => {
         if (omit(foreignConstraint, "read")) {
           return memo;
@@ -127,14 +123,14 @@ module.exports = function PgOrderRelatedColumnsPlugin(
         }
         const keyAttributes = foreignConstraint.foreignKeyAttributes;
         const foreignKeyAttributes = foreignConstraint.keyAttributes;
-        if (keyAttributes.some(attr => omit(attr, "read"))) {
+        if (keyAttributes.some((attr) => omit(attr, "read"))) {
           return memo;
         }
-        if (foreignKeyAttributes.some(attr => omit(attr, "read"))) {
+        if (foreignKeyAttributes.some((attr) => omit(attr, "read"))) {
           return memo;
         }
         const isForeignKeyUnique = !!foreignTable.constraints.find(
-          c =>
+          (c) =>
             (c.type === "p" || c.type === "u") &&
             c.keyAttributeNums.length === foreignKeyAttributes.length &&
             c.keyAttributeNums.every(
@@ -153,7 +149,7 @@ module.exports = function PgOrderRelatedColumnsPlugin(
       }, []);
 
     const forwardRelationSpecs = table.constraints
-      .filter(con => con.type === "f")
+      .filter((con) => con.type === "f")
       .reduce((memo, constraint) => {
         if (omit(constraint, "read")) {
           return memo;
@@ -170,10 +166,10 @@ module.exports = function PgOrderRelatedColumnsPlugin(
         }
         const keyAttributes = constraint.keyAttributes;
         const foreignKeyAttributes = constraint.foreignKeyAttributes;
-        if (keyAttributes.some(attr => omit(attr, "read"))) {
+        if (keyAttributes.some((attr) => omit(attr, "read"))) {
           return memo;
         }
-        if (foreignKeyAttributes.some(attr => omit(attr, "read"))) {
+        if (foreignKeyAttributes.some((attr) => omit(attr, "read"))) {
           return memo;
         }
         memo.push({
@@ -186,7 +182,7 @@ module.exports = function PgOrderRelatedColumnsPlugin(
         return memo;
       }, []);
 
-    const orderEnumValuesFromRelationSpec = relationSpec => {
+    const orderEnumValuesFromRelationSpec = (relationSpec) => {
       const {
         keyAttributes,
         foreignTable,
@@ -195,7 +191,7 @@ module.exports = function PgOrderRelatedColumnsPlugin(
         isForward,
       } = relationSpec;
 
-      const sqlKeysMatch = tableAlias =>
+      const sqlKeysMatch = (tableAlias) =>
         sql.fragment`(${sql.join(
           keyAttributes.map((attr, i) => {
             return sql.fragment`${tableAlias}.${sql.identifier(
@@ -255,20 +251,22 @@ module.exports = function PgOrderRelatedColumnsPlugin(
               if (omit(attr, "order")) return memo;
 
               for (const aggregateName of ["max", "min"]) {
-                const ascEnumName = inflection.orderByRelatedColumnAggregateEnum(
-                  attr,
-                  true,
-                  foreignTable,
-                  inflectionKeyAttributes,
-                  aggregateName
-                );
-                const descEnumName = inflection.orderByRelatedColumnAggregateEnum(
-                  attr,
-                  false,
-                  foreignTable,
-                  inflectionKeyAttributes,
-                  aggregateName
-                );
+                const ascEnumName =
+                  inflection.orderByRelatedColumnAggregateEnum(
+                    attr,
+                    true,
+                    foreignTable,
+                    inflectionKeyAttributes,
+                    aggregateName
+                  );
+                const descEnumName =
+                  inflection.orderByRelatedColumnAggregateEnum(
+                    attr,
+                    false,
+                    foreignTable,
+                    inflectionKeyAttributes,
+                    aggregateName
+                  );
 
                 const sqlSubselect = ({ queryBuilder }) => sql.fragment`(
               select ${sql.raw(aggregateName)}(${sql.identifier(attr.name)})
@@ -374,8 +372,8 @@ module.exports = function PgOrderRelatedColumnsPlugin(
         extend(enumValues, columnEnumValues);
 
         // Computed columns
-        const computedColumnEnumValues = introspectionResultsByKind.procedure.reduce(
-          (memo, proc) => {
+        const computedColumnEnumValues =
+          introspectionResultsByKind.procedure.reduce((memo, proc) => {
             // Must be marked @sortable
             if (!proc.tags.sortable) return memo;
 
@@ -468,9 +466,7 @@ module.exports = function PgOrderRelatedColumnsPlugin(
               )}.`
             );
             return memo;
-          },
-          {}
-        );
+          }, {});
         extend(enumValues, computedColumnEnumValues);
       }
 
@@ -480,8 +476,8 @@ module.exports = function PgOrderRelatedColumnsPlugin(
     return extend(
       values,
       [
-        ...forwardRelationSpecs.map(spec => ({ ...spec, isForward: true })),
-        ...backwardRelationSpecs.map(spec => ({ ...spec, isForward: false })),
+        ...forwardRelationSpecs.map((spec) => ({ ...spec, isForward: true })),
+        ...backwardRelationSpecs.map((spec) => ({ ...spec, isForward: false })),
       ].reduce(
         (memo, spec) => extend(memo, orderEnumValuesFromRelationSpec(spec)),
         {}
@@ -511,7 +507,7 @@ module.exports = function PgOrderRelatedColumnsPlugin(
       argTypes
         .slice(1)
         .some(
-          type => type.type === "c" && type.class && type.class.isSelectable
+          (type) => type.type === "c" && type.class && type.class.isSelectable
         )
     ) {
       // Accepts two input tables? Skip.

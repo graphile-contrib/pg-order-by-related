@@ -1,96 +1,96 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`columnAggregates.graphql 1`] = `
-Object {
-  "data": Object {
-    "CHILDREN_BY_FOO_ID__MAX_NAME_ASC": Object {
-      "nodes": Array [
-        Object {
-          "childrenByFooId": Object {
-            "nodes": Array [
-              Object {
+{
+  "data": {
+    "CHILDREN_BY_FOO_ID__MAX_NAME_ASC": {
+      "nodes": [
+        {
+          "childrenByFooId": {
+            "nodes": [
+              {
                 "name": "child1",
               },
-              Object {
+              {
                 "name": "child2",
               },
             ],
           },
           "id": 1,
         },
-        Object {
-          "childrenByFooId": Object {
-            "nodes": Array [
-              Object {
+        {
+          "childrenByFooId": {
+            "nodes": [
+              {
                 "name": "child3",
               },
-              Object {
+              {
                 "name": "child4",
               },
             ],
           },
           "id": 2,
         },
-        Object {
-          "childrenByFooId": Object {
-            "nodes": Array [],
+        {
+          "childrenByFooId": {
+            "nodes": [],
           },
           "id": 3,
         },
-        Object {
-          "childrenByFooId": Object {
-            "nodes": Array [],
+        {
+          "childrenByFooId": {
+            "nodes": [],
           },
           "id": 4,
         },
-        Object {
-          "childrenByFooId": Object {
-            "nodes": Array [],
+        {
+          "childrenByFooId": {
+            "nodes": [],
           },
           "id": 5,
         },
       ],
     },
-    "CHILDREN_BY_FOO_ID__MAX_NAME_DESC": Object {
-      "nodes": Array [
-        Object {
-          "childrenByFooId": Object {
-            "nodes": Array [],
+    "CHILDREN_BY_FOO_ID__MAX_NAME_DESC": {
+      "nodes": [
+        {
+          "childrenByFooId": {
+            "nodes": [],
           },
           "id": 3,
         },
-        Object {
-          "childrenByFooId": Object {
-            "nodes": Array [],
+        {
+          "childrenByFooId": {
+            "nodes": [],
           },
           "id": 4,
         },
-        Object {
-          "childrenByFooId": Object {
-            "nodes": Array [],
+        {
+          "childrenByFooId": {
+            "nodes": [],
           },
           "id": 5,
         },
-        Object {
-          "childrenByFooId": Object {
-            "nodes": Array [
-              Object {
+        {
+          "childrenByFooId": {
+            "nodes": [
+              {
                 "name": "child3",
               },
-              Object {
+              {
                 "name": "child4",
               },
             ],
           },
           "id": 2,
         },
-        Object {
-          "childrenByFooId": Object {
-            "nodes": Array [
-              Object {
+        {
+          "childrenByFooId": {
+            "nodes": [
+              {
                 "name": "child1",
               },
-              Object {
+              {
                 "name": "child2",
               },
             ],
@@ -99,94 +99,94 @@ Object {
         },
       ],
     },
-    "CHILDREN_BY_FOO_ID__MIN_ID_ASC": Object {
-      "nodes": Array [
-        Object {
-          "childrenByFooId": Object {
-            "nodes": Array [
-              Object {
+    "CHILDREN_BY_FOO_ID__MIN_ID_ASC": {
+      "nodes": [
+        {
+          "childrenByFooId": {
+            "nodes": [
+              {
                 "id": 1,
               },
-              Object {
+              {
                 "id": 2,
               },
             ],
           },
           "id": 1,
         },
-        Object {
-          "childrenByFooId": Object {
-            "nodes": Array [
-              Object {
+        {
+          "childrenByFooId": {
+            "nodes": [
+              {
                 "id": 3,
               },
-              Object {
+              {
                 "id": 4,
               },
             ],
           },
           "id": 2,
         },
-        Object {
-          "childrenByFooId": Object {
-            "nodes": Array [],
+        {
+          "childrenByFooId": {
+            "nodes": [],
           },
           "id": 3,
         },
-        Object {
-          "childrenByFooId": Object {
-            "nodes": Array [],
+        {
+          "childrenByFooId": {
+            "nodes": [],
           },
           "id": 4,
         },
-        Object {
-          "childrenByFooId": Object {
-            "nodes": Array [],
+        {
+          "childrenByFooId": {
+            "nodes": [],
           },
           "id": 5,
         },
       ],
     },
-    "CHILDREN_BY_FOO_ID__MIN_ID_DESC": Object {
-      "nodes": Array [
-        Object {
-          "childrenByFooId": Object {
-            "nodes": Array [],
+    "CHILDREN_BY_FOO_ID__MIN_ID_DESC": {
+      "nodes": [
+        {
+          "childrenByFooId": {
+            "nodes": [],
           },
           "id": 3,
         },
-        Object {
-          "childrenByFooId": Object {
-            "nodes": Array [],
+        {
+          "childrenByFooId": {
+            "nodes": [],
           },
           "id": 4,
         },
-        Object {
-          "childrenByFooId": Object {
-            "nodes": Array [],
+        {
+          "childrenByFooId": {
+            "nodes": [],
           },
           "id": 5,
         },
-        Object {
-          "childrenByFooId": Object {
-            "nodes": Array [
-              Object {
+        {
+          "childrenByFooId": {
+            "nodes": [
+              {
                 "id": 3,
               },
-              Object {
+              {
                 "id": 4,
               },
             ],
           },
           "id": 2,
         },
-        Object {
-          "childrenByFooId": Object {
-            "nodes": Array [
-              Object {
+        {
+          "childrenByFooId": {
+            "nodes": [
+              {
                 "id": 1,
               },
-              Object {
+              {
                 "id": 2,
               },
             ],
@@ -200,37 +200,37 @@ Object {
 `;
 
 exports[`computedColumn.graphql 1`] = `
-Object {
-  "data": Object {
-    "FORWARD_BY_FORWARD_ID__COMPUTED_SORTABLE_DESC": Object {
-      "nodes": Array [
-        Object {
+{
+  "data": {
+    "FORWARD_BY_FORWARD_ID__COMPUTED_SORTABLE_DESC": {
+      "nodes": [
+        {
           "forwardByForwardId": null,
           "id": 5,
         },
-        Object {
-          "forwardByForwardId": Object {
+        {
+          "forwardByForwardId": {
             "computedSortable": "c45a10dda8aa9c94e2be36ebf3bf2777",
             "name": "forward4",
           },
           "id": 4,
         },
-        Object {
-          "forwardByForwardId": Object {
+        {
+          "forwardByForwardId": {
             "computedSortable": "808e57a7c47cfcdf2e50f840f7cfd9bf",
             "name": "forward2",
           },
           "id": 2,
         },
-        Object {
-          "forwardByForwardId": Object {
+        {
+          "forwardByForwardId": {
             "computedSortable": "5a645663be3787e703ef29c971e60109",
             "name": "forward1",
           },
           "id": 1,
         },
-        Object {
-          "forwardByForwardId": Object {
+        {
+          "forwardByForwardId": {
             "computedSortable": "57eaeaefca0adb0cd6dd2e8722da24a7",
             "name": "forward3",
           },
@@ -243,410 +243,410 @@ Object {
 `;
 
 exports[`order-by-related.graphql 1`] = `
-Object {
-  "data": Object {
-    "A": Object {
-      "nodes": Array [
-        Object {
+{
+  "data": {
+    "A": {
+      "nodes": [
+        {
           "id": 1,
         },
-        Object {
+        {
           "id": 2,
         },
-        Object {
+        {
           "id": 3,
         },
-        Object {
+        {
           "id": 4,
         },
-        Object {
+        {
           "id": 5,
         },
       ],
     },
-    "BACKWARD_BY_FOO_ID__NAME_ASC": Object {
-      "nodes": Array [
-        Object {
-          "backwardByFooId": Object {
+    "BACKWARD_BY_FOO_ID__NAME_ASC": {
+      "nodes": [
+        {
+          "backwardByFooId": {
             "name": "backward1",
           },
           "id": 1,
         },
-        Object {
-          "backwardByFooId": Object {
+        {
+          "backwardByFooId": {
             "name": "backward2",
           },
           "id": 2,
         },
-        Object {
-          "backwardByFooId": Object {
+        {
+          "backwardByFooId": {
             "name": "backward3",
           },
           "id": 3,
         },
-        Object {
-          "backwardByFooId": Object {
+        {
+          "backwardByFooId": {
             "name": "backward4",
           },
           "id": 4,
         },
-        Object {
+        {
           "backwardByFooId": null,
           "id": 5,
         },
       ],
     },
-    "BACKWARD_BY_FOO_ID__NAME_DESC": Object {
-      "nodes": Array [
-        Object {
+    "BACKWARD_BY_FOO_ID__NAME_DESC": {
+      "nodes": [
+        {
           "backwardByFooId": null,
           "id": 5,
         },
-        Object {
-          "backwardByFooId": Object {
+        {
+          "backwardByFooId": {
             "name": "backward4",
           },
           "id": 4,
         },
-        Object {
-          "backwardByFooId": Object {
+        {
+          "backwardByFooId": {
             "name": "backward3",
           },
           "id": 3,
         },
-        Object {
-          "backwardByFooId": Object {
+        {
+          "backwardByFooId": {
             "name": "backward2",
           },
           "id": 2,
         },
-        Object {
-          "backwardByFooId": Object {
+        {
+          "backwardByFooId": {
             "name": "backward1",
           },
           "id": 1,
         },
       ],
     },
-    "BACKWARD_COMPOUND_BY_BACKWARD_COMPOUND_1_AND_BACKWARD_COMPOUND_2__NAME_ASC": Object {
-      "nodes": Array [
-        Object {
-          "backwardCompoundByBackwardCompound1AndBackwardCompound2": Object {
+    "BACKWARD_COMPOUND_BY_BACKWARD_COMPOUND_1_AND_BACKWARD_COMPOUND_2__NAME_ASC": {
+      "nodes": [
+        {
+          "backwardCompoundByBackwardCompound1AndBackwardCompound2": {
             "name": "backwardCompound11",
           },
           "id": 1,
         },
-        Object {
-          "backwardCompoundByBackwardCompound1AndBackwardCompound2": Object {
+        {
+          "backwardCompoundByBackwardCompound1AndBackwardCompound2": {
             "name": "backwardCompound12",
           },
           "id": 2,
         },
-        Object {
-          "backwardCompoundByBackwardCompound1AndBackwardCompound2": Object {
+        {
+          "backwardCompoundByBackwardCompound1AndBackwardCompound2": {
             "name": "backwardCompound21",
           },
           "id": 3,
         },
-        Object {
-          "backwardCompoundByBackwardCompound1AndBackwardCompound2": Object {
+        {
+          "backwardCompoundByBackwardCompound1AndBackwardCompound2": {
             "name": "backwardCompound22",
           },
           "id": 4,
         },
-        Object {
+        {
           "backwardCompoundByBackwardCompound1AndBackwardCompound2": null,
           "id": 5,
         },
       ],
     },
-    "BACKWARD_COMPOUND_BY_BACKWARD_COMPOUND_1_AND_BACKWARD_COMPOUND_2__NAME_DESC": Object {
-      "nodes": Array [
-        Object {
+    "BACKWARD_COMPOUND_BY_BACKWARD_COMPOUND_1_AND_BACKWARD_COMPOUND_2__NAME_DESC": {
+      "nodes": [
+        {
           "backwardCompoundByBackwardCompound1AndBackwardCompound2": null,
           "id": 5,
         },
-        Object {
-          "backwardCompoundByBackwardCompound1AndBackwardCompound2": Object {
+        {
+          "backwardCompoundByBackwardCompound1AndBackwardCompound2": {
             "name": "backwardCompound22",
           },
           "id": 4,
         },
-        Object {
-          "backwardCompoundByBackwardCompound1AndBackwardCompound2": Object {
+        {
+          "backwardCompoundByBackwardCompound1AndBackwardCompound2": {
             "name": "backwardCompound21",
           },
           "id": 3,
         },
-        Object {
-          "backwardCompoundByBackwardCompound1AndBackwardCompound2": Object {
+        {
+          "backwardCompoundByBackwardCompound1AndBackwardCompound2": {
             "name": "backwardCompound12",
           },
           "id": 2,
         },
-        Object {
-          "backwardCompoundByBackwardCompound1AndBackwardCompound2": Object {
+        {
+          "backwardCompoundByBackwardCompound1AndBackwardCompound2": {
             "name": "backwardCompound11",
           },
           "id": 1,
         },
       ],
     },
-    "CHILDREN_BY_FOO_ID__COUNT_ASC": Object {
-      "nodes": Array [
-        Object {
-          "childrenByFooId": Object {
+    "CHILDREN_BY_FOO_ID__COUNT_ASC": {
+      "nodes": [
+        {
+          "childrenByFooId": {
             "totalCount": 0,
           },
           "id": 3,
         },
-        Object {
-          "childrenByFooId": Object {
+        {
+          "childrenByFooId": {
             "totalCount": 0,
           },
           "id": 4,
         },
-        Object {
-          "childrenByFooId": Object {
+        {
+          "childrenByFooId": {
             "totalCount": 0,
           },
           "id": 5,
         },
-        Object {
-          "childrenByFooId": Object {
+        {
+          "childrenByFooId": {
             "totalCount": 2,
           },
           "id": 1,
         },
-        Object {
-          "childrenByFooId": Object {
+        {
+          "childrenByFooId": {
             "totalCount": 2,
           },
           "id": 2,
         },
       ],
     },
-    "CHILDREN_BY_FOO_ID__COUNT_DESC": Object {
-      "nodes": Array [
-        Object {
-          "childrenByFooId": Object {
+    "CHILDREN_BY_FOO_ID__COUNT_DESC": {
+      "nodes": [
+        {
+          "childrenByFooId": {
             "totalCount": 2,
           },
           "id": 1,
         },
-        Object {
-          "childrenByFooId": Object {
+        {
+          "childrenByFooId": {
             "totalCount": 2,
           },
           "id": 2,
         },
-        Object {
-          "childrenByFooId": Object {
+        {
+          "childrenByFooId": {
             "totalCount": 0,
           },
           "id": 3,
         },
-        Object {
-          "childrenByFooId": Object {
+        {
+          "childrenByFooId": {
             "totalCount": 0,
           },
           "id": 4,
         },
-        Object {
-          "childrenByFooId": Object {
+        {
+          "childrenByFooId": {
             "totalCount": 0,
           },
           "id": 5,
         },
       ],
     },
-    "FORWARD_BY_FORWARD_ID__NAME_ASC": Object {
-      "nodes": Array [
-        Object {
-          "forwardByForwardId": Object {
+    "FORWARD_BY_FORWARD_ID__NAME_ASC": {
+      "nodes": [
+        {
+          "forwardByForwardId": {
             "name": "forward1",
           },
           "id": 1,
         },
-        Object {
-          "forwardByForwardId": Object {
+        {
+          "forwardByForwardId": {
             "name": "forward2",
           },
           "id": 2,
         },
-        Object {
-          "forwardByForwardId": Object {
+        {
+          "forwardByForwardId": {
             "name": "forward3",
           },
           "id": 3,
         },
-        Object {
-          "forwardByForwardId": Object {
+        {
+          "forwardByForwardId": {
             "name": "forward4",
           },
           "id": 4,
         },
-        Object {
+        {
           "forwardByForwardId": null,
           "id": 5,
         },
       ],
     },
-    "FORWARD_BY_FORWARD_ID__NAME_DESC": Object {
-      "nodes": Array [
-        Object {
+    "FORWARD_BY_FORWARD_ID__NAME_DESC": {
+      "nodes": [
+        {
           "forwardByForwardId": null,
           "id": 5,
         },
-        Object {
-          "forwardByForwardId": Object {
+        {
+          "forwardByForwardId": {
             "name": "forward4",
           },
           "id": 4,
         },
-        Object {
-          "forwardByForwardId": Object {
+        {
+          "forwardByForwardId": {
             "name": "forward3",
           },
           "id": 3,
         },
-        Object {
-          "forwardByForwardId": Object {
+        {
+          "forwardByForwardId": {
             "name": "forward2",
           },
           "id": 2,
         },
-        Object {
-          "forwardByForwardId": Object {
+        {
+          "forwardByForwardId": {
             "name": "forward1",
           },
           "id": 1,
         },
       ],
     },
-    "FORWARD_COMPOUND_BY_FORWARD_COMPOUND_1_AND_FORWARD_COMPOUND_2__NAME_ASC": Object {
-      "nodes": Array [
-        Object {
-          "forwardCompoundByForwardCompound1AndForwardCompound2": Object {
+    "FORWARD_COMPOUND_BY_FORWARD_COMPOUND_1_AND_FORWARD_COMPOUND_2__NAME_ASC": {
+      "nodes": [
+        {
+          "forwardCompoundByForwardCompound1AndForwardCompound2": {
             "name": "forwardCompound11",
           },
           "id": 1,
         },
-        Object {
-          "forwardCompoundByForwardCompound1AndForwardCompound2": Object {
+        {
+          "forwardCompoundByForwardCompound1AndForwardCompound2": {
             "name": "forwardCompound12",
           },
           "id": 2,
         },
-        Object {
-          "forwardCompoundByForwardCompound1AndForwardCompound2": Object {
+        {
+          "forwardCompoundByForwardCompound1AndForwardCompound2": {
             "name": "forwardCompound21",
           },
           "id": 3,
         },
-        Object {
-          "forwardCompoundByForwardCompound1AndForwardCompound2": Object {
+        {
+          "forwardCompoundByForwardCompound1AndForwardCompound2": {
             "name": "forwardCompound22",
           },
           "id": 4,
         },
-        Object {
+        {
           "forwardCompoundByForwardCompound1AndForwardCompound2": null,
           "id": 5,
         },
       ],
     },
-    "FORWARD_COMPOUND_BY_FORWARD_COMPOUND_1_AND_FORWARD_COMPOUND_2__NAME_DESC": Object {
-      "nodes": Array [
-        Object {
+    "FORWARD_COMPOUND_BY_FORWARD_COMPOUND_1_AND_FORWARD_COMPOUND_2__NAME_DESC": {
+      "nodes": [
+        {
           "forwardCompoundByForwardCompound1AndForwardCompound2": null,
           "id": 5,
         },
-        Object {
-          "forwardCompoundByForwardCompound1AndForwardCompound2": Object {
+        {
+          "forwardCompoundByForwardCompound1AndForwardCompound2": {
             "name": "forwardCompound22",
           },
           "id": 4,
         },
-        Object {
-          "forwardCompoundByForwardCompound1AndForwardCompound2": Object {
+        {
+          "forwardCompoundByForwardCompound1AndForwardCompound2": {
             "name": "forwardCompound21",
           },
           "id": 3,
         },
-        Object {
-          "forwardCompoundByForwardCompound1AndForwardCompound2": Object {
+        {
+          "forwardCompoundByForwardCompound1AndForwardCompound2": {
             "name": "forwardCompound12",
           },
           "id": 2,
         },
-        Object {
-          "forwardCompoundByForwardCompound1AndForwardCompound2": Object {
+        {
+          "forwardCompoundByForwardCompound1AndForwardCompound2": {
             "name": "forwardCompound11",
           },
           "id": 1,
         },
       ],
     },
-    "PARENT_BY_PARENT_ID__NAME_ASC": Object {
-      "nodes": Array [
-        Object {
+    "PARENT_BY_PARENT_ID__NAME_ASC": {
+      "nodes": [
+        {
           "id": 1,
-          "parentByParentId": Object {
+          "parentByParentId": {
             "name": "parent1",
           },
         },
-        Object {
+        {
           "id": 2,
-          "parentByParentId": Object {
+          "parentByParentId": {
             "name": "parent1",
           },
         },
-        Object {
+        {
           "id": 3,
-          "parentByParentId": Object {
+          "parentByParentId": {
             "name": "parent2",
           },
         },
-        Object {
+        {
           "id": 4,
-          "parentByParentId": Object {
+          "parentByParentId": {
             "name": "parent2",
           },
         },
-        Object {
+        {
           "id": 5,
           "parentByParentId": null,
         },
       ],
     },
-    "PARENT_BY_PARENT_ID__NAME_DESC": Object {
-      "nodes": Array [
-        Object {
+    "PARENT_BY_PARENT_ID__NAME_DESC": {
+      "nodes": [
+        {
           "id": 5,
           "parentByParentId": null,
         },
-        Object {
+        {
           "id": 3,
-          "parentByParentId": Object {
+          "parentByParentId": {
             "name": "parent2",
           },
         },
-        Object {
+        {
           "id": 4,
-          "parentByParentId": Object {
+          "parentByParentId": {
             "name": "parent2",
           },
         },
-        Object {
+        {
           "id": 1,
-          "parentByParentId": Object {
+          "parentByParentId": {
             "name": "parent1",
           },
         },
-        Object {
+        {
           "id": 2,
-          "parentByParentId": Object {
+          "parentByParentId": {
             "name": "parent1",
           },
         },
