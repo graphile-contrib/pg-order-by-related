@@ -70,7 +70,7 @@ module.exports = makeAddInflectorsPlugin(
   {
     orderByRelatedColumnEnum(attr, ascending, foreignTable, keyAttributes) {
       return `${this.constantCase(
-        keyAttributes.map(keyAttr => this._columnName(keyAttr)).join("-and-")
+        keyAttributes.map((keyAttr) => this._columnName(keyAttr)).join("-and-")
       )}__${this.orderByColumnEnum(attr, ascending)}`;
     },
   },
