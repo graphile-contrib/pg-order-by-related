@@ -96,6 +96,7 @@ beforeAll(() => {
 });
 
 for (let i = 0; i < queryFileNames.length; i++) {
+  // eslint-disable-next-line jest/valid-title
   test(queryFileNames[i], async () => {
     expect(await queryResults[i]).toMatchSnapshot();
   });
