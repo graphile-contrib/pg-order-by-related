@@ -1,6 +1,6 @@
 # @graphile-contrib/pg-order-by-related
 
-[![Package on npm](https://img.shields.io/npm/v/@graphile-contrib/pg-order-by-related.svg)](https://www.npmjs.com/package/@graphile-contrib/pg-order-by-related) [![CircleCI](https://circleci.com/gh/graphile-contrib/pg-order-by-related.svg?style=svg)](https://circleci.com/gh/graphile-contrib/pg-order-by-related)
+[![Package on npm](https://img.shields.io/npm/v/@graphile-contrib/pg-order-by-related.svg)](https://www.npmjs.com/package/@graphile-contrib/pg-order-by-related)
 
 This Graphile Engine plugin adds additional enum values to the `orderBy` argument on connections, allowing you to order by columns in related tables.
 
