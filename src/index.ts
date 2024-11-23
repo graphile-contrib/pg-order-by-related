@@ -172,7 +172,14 @@ export const PgOrderByRelatedPlugin: GraphileConfig.Plugin = {
           PgCodecRelation
         >;
         for (const [relationName, relation] of Object.entries(relations)) {
-          if (!behavior.pgCodecRelationMatches(relation, "select")) {
+          if (
+            relation.isUnique
+              ? !behavior.pgCodecRelationMatches(relation, "resource:single")
+              : !behavior.pgCodecRelationMatches(
+                  relation,
+                  "resource:connection"
+                ) && !behavior.pgCodecRelationMatches(relation, "resource:list")
+          ) {
             continue;
           }
           const { remoteResource } = relation;
@@ -182,7 +189,7 @@ export const PgOrderByRelatedPlugin: GraphileConfig.Plugin = {
           if (remoteResource.codec.polymorphism) {
             continue;
           }
-          if (!behavior.pgResourceMatches(remoteResource, "select")) {
+          if (!behavior.pgResourceMatches(remoteResource, "resource:select")) {
             continue;
           }
           // NOTE: V4 version of this plugin factored in the behaviors on the attributes; V5 **does not** do this. Set behaviors on the relation to exclude it.
@@ -298,7 +305,7 @@ export const PgOrderByRelatedPlugin: GraphileConfig.Plugin = {
                   !behavior.pgCodecAttributeMatches(
                     [relation.remoteResource.codec, attributeName],
                     // TODO: this is probably the wrong behavior
-                    "orderBy"
+                    "attribute:orderBy"
                   )
                 ) {
                   continue;
@@ -348,7 +355,7 @@ export const PgOrderByRelatedPlugin: GraphileConfig.Plugin = {
               if (
                 !behavior.pgCodecAttributeMatches(
                   [remoteCodec, attributeName],
-                  "orderBy"
+                  "attribute:orderBy"
                 )
               ) {
                 continue;
@@ -399,7 +406,8 @@ where ${sqlKeysMatch(localAlias, remoteAlias)}
               >;
               if (typeof resource.from !== "function") continue;
 
-              if (!behavior.pgResourceMatches(resource, "orderBy")) continue;
+              if (!behavior.pgResourceMatches(resource, "proc:orderBy"))
+                continue;
 
               // Must have only one required argument
               if (resource.parameters.slice(1).some((p) => p.required))
