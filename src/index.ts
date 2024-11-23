@@ -55,12 +55,6 @@ declare global {
   }
 }
 
-interface RelationSpec {
-  relationName: string;
-  relation: PgCodecRelation;
-  isOneToMany: boolean;
-}
-
 const PgOrderByRelatedPlugin: GraphileConfig.Plugin = {
   name: "PgOrderByRelatedPlugin",
   version: pkg.version,
@@ -161,29 +155,21 @@ const PgOrderByRelatedPlugin: GraphileConfig.Plugin = {
           return values;
         }
 
-        const relationSpecs = Object.entries(resource.getRelations()).reduce(
-          (memo, [relationName, relation]) => {
-            if (!behavior.pgCodecRelationMatches(relation, "select")) {
-              return memo;
-            }
-            const { remoteResource } = relation;
-            if (!behavior.pgResourceMatches(remoteResource, "select")) {
-              return memo;
-            }
-            // NOTE: V4 version of this plugin factored in the behaviors on the attributes; V5 **does not** do this. Set behaviors on the relation to exclude it.
-            const isForeignKeyUnique = relation.isUnique;
-            memo.push({
-              relationName,
-              relation,
-              isOneToMany: !isForeignKeyUnique,
-            });
-            return memo;
-          },
-          [] as Array<RelationSpec>
-        );
+        const relations = resource.getRelations() as Record<
+          string,
+          PgCodecRelation
+        >;
+        for (const [relationName, relation] of Object.entries(relations)) {
+          if (!behavior.pgCodecRelationMatches(relation, "select")) {
+            continue;
+          }
+          const { remoteResource } = relation;
+          if (!behavior.pgResourceMatches(remoteResource, "select")) {
+            continue;
+          }
+          // NOTE: V4 version of this plugin factored in the behaviors on the attributes; V5 **does not** do this. Set behaviors on the relation to exclude it.
+          const isOneToMany = !relation.isUnique;
 
-        for (const relationSpec of relationSpecs) {
-          const { isOneToMany, relation, relationName } = relationSpec;
           const isForward = !relation.isReferencee;
 
           const sqlKeysMatch = EXPORTABLE(
