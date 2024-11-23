@@ -5,6 +5,5 @@ test(
   "prints a schema with the order-by-related plugin",
   core.test(["p"], {
     disableDefaultMutations: true,
-    legacyRelations: "omit",
   })
 );
