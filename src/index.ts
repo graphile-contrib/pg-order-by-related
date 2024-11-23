@@ -1,6 +1,7 @@
 import type {} from "postgraphile";
 import type { SQL } from "postgraphile/pg-sql2";
 import type {
+  PgCodec,
   PgCodecRelation,
   PgCodecWithAttributes,
   PgResource,
@@ -448,103 +449,104 @@ where ${sqlKeysMatch(step.alias, foreignTableAlias)}
             }
 
             // Computed columns
-            const computedColumnEnumValues =
-              introspectionResultsByKind.procedure.reduce((memo, proc) => {
-                // Must be marked @sortable
-                if (!proc.tags.sortable) return memo;
+            for (const r of Object.values(pgRegistry.pgResources)) {
+              // Skip if not computed column on this codec
+              {
+                if (!r.parameters) continue;
+                if (!r.parameters[0]) continue;
+                if (r.parameters[0].codec !== pgCodec) continue;
+                if (!behavior.pgResourceMatches(r, "typeField")) continue;
+              }
 
-                // Must not be omitted
-                if (omit(proc, "execute")) return memo;
-                if (omit(proc, "order")) return memo;
+              const resource = r as PgResource<
+                any,
+                any,
+                any,
+                readonly PgResourceParameter[],
+                any
+              >;
+              if (typeof resource.from !== "function") continue;
 
-                // Must be a computed column
-                const computedColumnDetails = getComputedColumnDetails(
-                  build,
-                  foreignTable,
-                  proc
-                );
-                if (!computedColumnDetails) return memo;
-                const { pseudoColumnName } = computedColumnDetails;
+              if (!behavior.pgResourceMatches(resource, "orderBy")) continue;
 
-                // Must have only one required argument
-                const nonOptionalArgumentsCount =
-                  proc.argDefaultsNum - proc.inputArgsCount;
-                if (nonOptionalArgumentsCount > 1) {
-                  return memo;
-                }
+              // Must have only one required argument
+              if (resource.parameters.slice(1).some((p) => p.required))
+                continue;
 
-                // Must return a scalar or an array
-                if (proc.returnsSet) return memo;
-                const returnType =
-                  introspectionResultsByKind.typeById[proc.returnTypeId];
-                const returnTypeTable =
-                  introspectionResultsByKind.classById[returnType.classId];
-                if (returnTypeTable) return memo;
-                const isRecordLike = returnType.id === "2249";
-                if (isRecordLike) return memo;
-                const isVoid = String(returnType.id) === "2278";
-                if (isVoid) return memo;
+              let underlyingCodec = resource.codec;
+              while (underlyingCodec.domainOfCodec) {
+                underlyingCodec = underlyingCodec.domainOfCodec;
+              }
 
-                // Looks good
-                const ascEnumName = inflection.orderByRelatedComputedColumnEnum(
-                  pseudoColumnName,
-                  proc,
-                  true,
-                  foreignTable,
-                  inflectionKeyAttributes
-                );
-                const descEnumName =
-                  inflection.orderByRelatedComputedColumnEnum(
-                    pseudoColumnName,
-                    proc,
-                    false,
-                    foreignTable,
-                    inflectionKeyAttributes
-                  );
+              if (
+                !resource.isUnique ||
+                resource.isList ||
+                underlyingCodec.attributes ||
+                underlyingCodec.arrayOfCodec ||
+                underlyingCodec.rangeOfCodec ||
+                underlyingCodec.name === "void"
+              ) {
+                // Only want to deal with scalars
+                continue;
+              }
 
-                const sqlSubselect = ({ queryBuilder }) => sql.fragment`(
-            select ${sql.identifier(
-              proc.namespace.name,
-              proc.name
-            )}(${sql.identifier(foreignTable.name)})
-            from ${sql.identifier(
-              foreignTable.namespace.name,
-              foreignTable.name
-            )}
-            where ${sqlKeysMatch(queryBuilder.getTableAlias())}
-            )`;
+              const pseudoColumnName = inflection.computedAttributeField({
+                resource,
+              });
 
-                memo = extend(
-                  memo,
-                  {
-                    [ascEnumName]: {
-                      value: {
-                        alias: ascEnumName.toLowerCase(),
-                        specs: [[sqlSubselect, true]],
-                      },
+              // Looks good
+              const ascEnumName = inflection.orderByRelatedComputedColumnEnum({
+                relationDetails,
+                resource,
+                variant: "asc",
+              });
+              const descEnumName = inflection.orderByRelatedComputedColumnEnum({
+                relationDetails,
+                resource,
+                variant: "desc",
+              });
+
+              const sqlSubselect = EXPORTABLE(
+                (from, relation, resource, sql, sqlKeysMatch) =>
+                  (step: PgSelectStep) => {
+                    const foreignTableAlias = sql.identifier(
+                      Symbol(relation.remoteResource.codec.name)
+                    );
+                    if (typeof resource.from !== "function")
+                      throw new Error(
+                        `Impossible... unless you mutated the resource definition?!`
+                      );
+                    return sql.parens(
+                      sql`\
+select ${resource.from({ placeholder: foreignTableAlias })}
+from ${from}
+where ${sqlKeysMatch(step.alias, foreignTableAlias)}
+`,
+                      true
+                    );
+                  },
+                [from, relation, resource, sql, sqlKeysMatch]
+              );
+
+              enumValues = extend(
+                enumValues,
+                {
+                  [ascEnumName]: {
+                    value: {
+                      alias: ascEnumName.toLowerCase(),
+                      specs: [[sqlSubselect, true]],
                     },
                   },
-                  `Adding ascending orderBy enum value for ${describePgEntity(
-                    proc
-                  )}.`
-                );
-                memo = extend(
-                  memo,
-                  {
-                    [descEnumName]: {
-                      value: {
-                        alias: descEnumName.toLowerCase(),
-                        specs: [[sqlSubselect, false]],
-                      },
+                  [descEnumName]: {
+                    value: {
+                      alias: descEnumName.toLowerCase(),
+                      specs: [[sqlSubselect, false]],
                     },
                   },
-                  `Adding descending orderBy enum value for ${describePgEntity(
-                    proc
-                  )}.`
-                );
-                return memo;
-              }, {});
-            extend(enumValues, computedColumnEnumValues);
+                },
+                `Adding orderBy enum value for computed column ${pgCodec.name}->${relation.remoteResource.name}.${resource.name}().`
+              );
+            }
           }
 
           return enumValues;
