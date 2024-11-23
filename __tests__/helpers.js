@@ -1,24 +1,30 @@
 // @ts-check
+const { makePgService } = require("postgraphile/adaptors/pg");
 const pg = require("pg");
-const { readFile } = require("fs");
+const { readFile } = require("fs/promises");
+const { default: PgOrderByRelatedPlugin } = require("../dist/index.js");
+const { makeV4Preset } = require("postgraphile/presets/v4");
+
+const connectionString =
+  process.env.TEST_DATABASE_URL || "postgres:///pg_order_by_related";
+
+/** @type {(schemas: string[], options: import("postgraphile/presets/v4").V4Options) => GraphileConfig.Preset} */
+const makePreset = (schemas, options) => ({
+  extends: [makeV4Preset(options)],
+  plugins: [PgOrderByRelatedPlugin],
+  pgServices: [
+    makePgService({
+      connectionString,
+      schemas,
+    }),
+  ],
+});
 
 // This test suite can be flaky. Increase it’s timeout.
 jest.setTimeout(1000 * 20);
 
-function readFilePromise(filename, encoding) {
-  return new Promise((resolve, reject) => {
-    readFile(filename, encoding, (err, res) => {
-      if (err) reject(err);
-      else resolve(res);
-    });
-  });
-}
-
-const withPgClient = async (url, fn) => {
-  if (!fn) {
-    fn = url;
-    url = process.env.TEST_DATABASE_URL;
-  }
+/** @type {<T>(url: string, fn: (client: import("pg").PoolClient) => Promise<T> | T) => Promise<T>} */
+const withPgClientForUrl = async (url, fn) => {
   const pgPool = new pg.Pool({ connectionString: url });
   let client;
   try {
@@ -38,8 +44,12 @@ const withPgClient = async (url, fn) => {
   }
 };
 
+/** @type {<T>(fn: (client: import("pg").PoolClient) => Promise<T> | T) => Promise<T>} */
+const withPgClient = async (fn) => withPgClientForUrl(connectionString, fn);
+
+/** @type {<T>(url: string, fn: (client: import("pg").PoolClient) => Promise<T> | T) => Promise<T>} */
 const withDbFromUrl = async (url, fn) => {
-  return withPgClient(url, async (client) => {
+  return withPgClientForUrl(url, async (client) => {
     try {
       await client.query("BEGIN ISOLATION LEVEL SERIALIZABLE;");
       return fn(client);
@@ -49,16 +59,19 @@ const withDbFromUrl = async (url, fn) => {
   });
 };
 
-const withRootDb = (fn) => withDbFromUrl(process.env.TEST_DATABASE_URL, fn);
+/** @type {<T>(fn: (client: import("pg").PoolClient) => Promise<T> | T) => Promise<T>} */
+const withRootDb = (fn) => withDbFromUrl(connectionString, fn);
 
 /** @type {(Promise<void> & {resolve: () => void, reject: () => void, client: import('pg').PoolClient, vars: any}) | null} */
 let prepopulatedDBKeepalive = null;
 
+/** @type {(client: import("pg").PoolClient) => Promise<{}>} */
 const populateDatabase = async (client) => {
-  await client.query(await readFilePromise(`${__dirname}/p-data.sql`, "utf8"));
+  await client.query(await readFile(`${__dirname}/p-data.sql`, "utf8"));
   return {};
 };
 
+/** @type {{(fn: (client: import("pg").PoolClient, vars: any) => Promise<void>): Promise<void>, setup: (fn: (e?: Error) => void) => Promise<void>, teardown(): void}} */
 const withPrepopulatedDb = async (fn) => {
   if (!prepopulatedDBKeepalive) {
     throw new Error("You must call setup and teardown to use this");
@@ -77,7 +90,7 @@ const withPrepopulatedDb = async (fn) => {
     await client.query("ROLLBACK TO SAVEPOINT pristine;");
   } catch (e) {
     err = err || e;
-    console.error("ERROR ROLLING BACK", e.message); // eslint-disable-line no-console
+    console.error("ERROR ROLLING BACK", /** @type{any} */ (e)?.message); // eslint-disable-line no-console
   }
   if (err) {
     throw err;
@@ -90,7 +103,7 @@ withPrepopulatedDb.setup = (done) => {
   }
   let res;
   let rej;
-  withRootDb(async (client) => {
+  return withRootDb(async (client) => {
     prepopulatedDBKeepalive = Object.assign(
       new Promise((resolve, reject) => {
         res = resolve;
@@ -100,7 +113,8 @@ withPrepopulatedDb.setup = (done) => {
     );
     try {
       prepopulatedDBKeepalive.vars = await populateDatabase(client);
-    } catch (e) {
+    } catch (err) {
+      const e = /** @type {Error} */ (err);
       console.error("FAILED TO PREPOPULATE DB!", e.message); // eslint-disable-line no-console
       return done(e);
     }
@@ -121,3 +135,4 @@ withPrepopulatedDb.teardown = () => {
 exports.withRootDb = withRootDb;
 exports.withPrepopulatedDb = withPrepopulatedDb;
 exports.withPgClient = withPgClient;
+exports.makePreset = makePreset;

@@ -1,21 +1,12 @@
 // @ts-check
 const { graphql } = require("graphql");
-const { withPgClient } = require("../helpers");
-const { createPostGraphileSchema } = require("postgraphile");
-const { readdirSync, readFile: rawReadFile } = require("fs");
+const { withPgClient, makePreset } = require("../helpers.js");
+const { makeSchema } = require("postgraphile");
+const { readdirSync } = require("fs");
+const { readFile } = require("fs/promises");
 const { resolve: resolvePath } = require("path");
-const { printSchema } = require("graphql/utilities");
+const { printSchema } = require("postgraphile/graphql");
 const debug = require("debug")("graphile-build:schema");
-const { default: PgOrderByRelatedPlugin } = require("../../dist/index.js");
-
-function readFile(filename, encoding) {
-  return new Promise((resolve, reject) => {
-    rawReadFile(filename, encoding, (err, res) => {
-      if (err) reject(err);
-      else resolve(res);
-    });
-  });
-}
 
 const queriesDir = `${__dirname}/../fixtures/queries`;
 const queryFileNames = readdirSync(queriesDir);
@@ -25,27 +16,27 @@ const kitchenSinkData = () => readFile(`${__dirname}/../p-data.sql`, "utf8");
 
 beforeAll(() => {
   // Get a few GraphQL schema instance that we can query.
-  const gqlSchemasPromise = withPgClient(async (pgClient) => {
+  const gqlSchemasPromise = (async () => {
     // Different fixtures need different schemas with different configurations.
     // Make all of the different schemas with different configurations that we
     // need and wait for them to be created in parallel.
-    const [normal, columnAggregates] = await Promise.all([
-      createPostGraphileSchema(pgClient, ["p"], {
-        appendPlugins: [PgOrderByRelatedPlugin],
-      }),
-      createPostGraphileSchema(pgClient, ["p"], {
-        appendPlugins: [PgOrderByRelatedPlugin],
-        graphileBuildOptions: {
-          orderByRelatedColumnAggregates: true,
-        },
-      }),
-    ]);
+    const [{ schema: normal }, { schema: columnAggregates }] =
+      await Promise.all([
+        makeSchema(makePreset(["p"], {})),
+        makeSchema(
+          makePreset(["p"], {
+            graphileBuildOptions: {
+              orderByRelatedColumnAggregates: true,
+            },
+          })
+        ),
+      ]);
     debug(printSchema(normal));
     return {
       normal,
       columnAggregates,
     };
-  });
+  })();
 
   // Execute all of the queries in parallel. We will not wait for them to
   // resolve or reject. The tests will do that.
@@ -90,11 +81,9 @@ beforeAll(() => {
   })();
 
   // Flatten out the query results promise.
-  queryResults = queryFileNames.map(async (_, i) => {
-    return await (
-      await queryResultsPromise
-    )[i];
-  });
+  queryResults = queryFileNames.map(
+    async (_, i) => (await queryResultsPromise)[i]
+  );
 });
 
 for (let i = 0; i < queryFileNames.length; i++) {

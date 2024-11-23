@@ -1,9 +1,13 @@
 // @ts-check
-const { withPgClient } = require("../../helpers");
-const { createPostGraphileSchema } = require("postgraphile");
-const { parse, buildASTSchema } = require("graphql");
-const { lexicographicSortSchema, printSchema } = require("graphql/utilities");
+const { withPgClient, makePreset } = require("../../helpers");
+const { makeSchema } = require("postgraphile");
+const {
+  GraphQLSchema,
+  lexicographicSortSchema,
+  printSchema,
+} = require("postgraphile/graphql");
 
+/** @type {(schemas: string[], options: import("postgraphile/presets/v4").V4Options, setup?: string | ((client: import("pg").PoolClient) => Promise<void>)) => () => Promise<void>} */
 exports.test = (schemas, options, setup) => () =>
   withPgClient(async (client) => {
     if (setup) {
@@ -13,13 +17,12 @@ exports.test = (schemas, options, setup) => () =>
         await client.query(setup);
       }
     }
-    const schema = await createPostGraphileSchema(client, schemas, options);
+    const preset = makePreset(schemas, options);
+    const { schema } = await makeSchema(preset);
     expect(printSchemaOrdered(schema)).toMatchSnapshot();
   });
 
+/** @type {(schema: GraphQLSchema) => string} */
 function printSchemaOrdered(originalSchema) {
-  // Clone schema so we don't damage anything
-  const schema = buildASTSchema(parse(printSchema(originalSchema)));
-
-  return printSchema(lexicographicSortSchema(schema));
+  return printSchema(lexicographicSortSchema(originalSchema));
 }
