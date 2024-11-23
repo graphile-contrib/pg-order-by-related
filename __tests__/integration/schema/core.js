@@ -1,6 +1,6 @@
 // @ts-check
 const { withPgClient } = require("../../helpers");
-const { createPostGraphileSchema } = require("postgraphile-core");
+const { createPostGraphileSchema } = require("postgraphile");
 const { parse, buildASTSchema } = require("graphql");
 const { lexicographicSortSchema, printSchema } = require("graphql/utilities");
 

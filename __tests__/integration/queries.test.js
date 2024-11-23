@@ -1,7 +1,7 @@
 // @ts-check
 const { graphql } = require("graphql");
 const { withPgClient } = require("../helpers");
-const { createPostGraphileSchema } = require("postgraphile-core");
+const { createPostGraphileSchema } = require("postgraphile");
 const { readdirSync, readFile: rawReadFile } = require("fs");
 const { resolve: resolvePath } = require("path");
 const { printSchema } = require("graphql/utilities");
