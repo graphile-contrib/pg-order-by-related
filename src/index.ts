@@ -211,12 +211,12 @@ export const PgOrderByRelatedPlugin: GraphileConfig.Plugin = {
               relationDetails.registry.pgRelations[relationDetails.codec.name][
                 relationDetails.relationName
               ];
-            const ascEnumName = build.inflection[inflector]({
+            const ascEnumName = (build.inflection[inflector] as any)({
               ...inflectionDetails,
               variant: "asc",
-            } as any);
-            const descEnumName = inflection.orderByRelatedCountEnum({
-              relationDetails,
+            });
+            const descEnumName = (build.inflection[inflector] as any)({
+              ...inflectionDetails,
               variant: "desc",
             });
             const makePlan = (direction: "ASC" | "DESC") =>
