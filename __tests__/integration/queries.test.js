@@ -1,11 +1,10 @@
 // @ts-check
-const { graphql } = require("graphql");
+const { graphql, printSchema } = require("postgraphile/graphql");
 const { withPgClient, makePreset } = require("../helpers.js");
 const { makeSchema } = require("postgraphile");
 const { readdirSync } = require("fs");
 const { readFile } = require("fs/promises");
 const { resolve: resolvePath } = require("path");
-const { printSchema } = require("postgraphile/graphql");
 const debug = require("debug")("graphile-build:schema");
 
 const queriesDir = `${__dirname}/../fixtures/queries`;
