@@ -1,0 +1,18 @@
+diff --git a/node_modules/postgraphile/dist/presets/v4.js b/node_modules/postgraphile/dist/presets/v4.js
+index a8d69be..44ba8cb 100644
+--- a/node_modules/postgraphile/dist/presets/v4.js
++++ b/node_modules/postgraphile/dist/presets/v4.js
+@@ -58,9 +58,10 @@ const makeV4Plugin = (options) => {
+                     ? null
+                     : {
+                         // Don't rename 'id' to 'rowId'
+-                        attribute(previous, options, details) {
+-                            const attributeFieldName = this.camelCase(this._attributeName(details));
+-                            return attributeFieldName;
++                        _attributeName(previous, options, {attributeName, codec}) {
++                            const attribute = codec.attributes[attributeName];
++                            const name = attribute.extensions?.tags?.name || attributeName
++                            return this.coerceToGraphQLName(name);
+                         },
+                     }),
+             },

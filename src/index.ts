@@ -70,8 +70,8 @@ export const PgOrderByRelatedPlugin: GraphileConfig.Plugin = {
           ];
         const prefix = this.constantCase(
           relation.isReferencee
-            ? this.singleRelationBackwards(relationDetails)
-            : this.singleRelation(relationDetails)
+            ? this._singleRelationBackwardsRaw(relationDetails)
+            : this._singleRelationRaw(relationDetails)
         );
         if (!relation.isUnique)
           throw new Error(
@@ -96,8 +96,8 @@ export const PgOrderByRelatedPlugin: GraphileConfig.Plugin = {
           ];
         const prefix = this.constantCase(
           relation.isReferencee
-            ? this.singleRelationBackwards(relationDetails)
-            : this.singleRelation(relationDetails)
+            ? this._singleRelationBackwardsRaw(relationDetails)
+            : this._singleRelationRaw(relationDetails)
         );
         if (!relation.isUnique)
           throw new Error(
