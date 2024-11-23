@@ -1,7 +1,8 @@
 // @ts-check
-const { graphql, printSchema } = require("postgraphile/graphql");
+const { printSchema } = require("postgraphile/graphql");
 const { withPgClient, makePreset } = require("../helpers.js");
 const { makeSchema } = require("postgraphile");
+const { grafast, isAsyncIterable } = require("postgraphile/grafast");
 const { readdirSync } = require("fs");
 const { readFile } = require("fs/promises");
 const { resolve: resolvePath } = require("path");
@@ -19,18 +20,17 @@ beforeAll(() => {
     // Different fixtures need different schemas with different configurations.
     // Make all of the different schemas with different configurations that we
     // need and wait for them to be created in parallel.
-    const [{ schema: normal }, { schema: columnAggregates }] =
-      await Promise.all([
-        makeSchema(makePreset(["p"], {})),
-        makeSchema(
-          makePreset(["p"], {
-            graphileBuildOptions: {
-              orderByRelatedColumnAggregates: true,
-            },
-          })
-        ),
-      ]);
-    debug(printSchema(normal));
+    const [normal, columnAggregates] = await Promise.all([
+      makeSchema(makePreset(["p"], {})),
+      makeSchema(
+        makePreset(["p"], {
+          graphileBuildOptions: {
+            orderByRelatedColumnAggregates: true,
+          },
+        })
+      ),
+    ]);
+    debug(printSchema(normal.schema));
     return {
       normal,
       columnAggregates,
@@ -53,7 +53,7 @@ beforeAll(() => {
       return await Promise.all(
         queryFileNames.map(async (fileName) => {
           // Read the query from the file system.
-          const query = await readFile(
+          const source = await readFile(
             resolvePath(queriesDir, fileName),
             "utf8"
           );
@@ -63,13 +63,18 @@ beforeAll(() => {
           const schemas = {
             "columnAggregates.graphql": gqlSchemas.columnAggregates,
           };
-          const gqlSchema = schemas[fileName]
-            ? schemas[fileName]
-            : gqlSchemas.normal;
+          const { schema, resolvedPreset } =
+            schemas[fileName] ?? gqlSchemas.normal;
           // Return the result of our GraphQL query.
-          const result = await graphql(gqlSchema, query, null, {
-            pgClient: pgClient,
+          const result = await grafast({
+            schema,
+            source,
+            resolvedPreset,
+            requestContext: {},
           });
+          if (isAsyncIterable(result)) {
+            throw new Error(`Didn't expect an async iterable`);
+          }
           if (result.errors) {
             console.log(result.errors.map((e) => e.originalError));
           }
