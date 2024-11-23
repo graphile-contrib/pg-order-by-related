@@ -2,15 +2,16 @@
   "name": "@graphile-contrib/pg-order-by-related",
   "version": "1.0.0",
   "description": "Order by related columns on PostGraphile connections",
-  "main": "index.js",
-  "types": "index.d.ts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
     "format": "prettier --ignore-path ./.eslintignore",
     "format:all": "yarn format '**/*.{json,md,html,js,jsx,ts,tsx}'",
     "format:fix": "yarn format:all --write",
     "format:check": "yarn format:all --list-different",
-    "lint": "eslint . --ext .js,.jsx",
-    "test": "scripts/test"
+    "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
+    "prepack": "tsc",
+    "test": "tsc && scripts/test"
   },
   "repository": {
     "type": "git",
@@ -38,7 +39,6 @@
     "testRegex": "__tests__/.*\\.test\\.js$"
   },
   "files": [
-    "index.js",
-    "index.d.ts"
+    "dist"
   ]
 }
