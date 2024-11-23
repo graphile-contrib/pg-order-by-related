@@ -4,12 +4,7 @@
   "compilerOptions": {
     "noImplicitAny": false,
     "resolveJsonModule": true,
-    "rootDir": "./src",
-    "outDir": "./dist",
-    "declarationDir": "dist",
-    "declaration": true,
-    "sourceMap": true
+    "allowJs": true
   },
-  "include": ["src"],
   "exclude": ["node_modules"]
 }

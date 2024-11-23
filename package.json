@@ -10,8 +10,8 @@
     "format:fix": "yarn format:all --write",
     "format:check": "yarn format:all --list-different",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
-    "prepack": "tsc",
-    "test": "tsc && scripts/test"
+    "prepack": "tsc -p tsconfig.build.json",
+    "test": "tsc -p tsconfig.build.json && scripts/test"
   },
   "repository": {
     "type": "git",
