@@ -24,9 +24,7 @@ beforeAll(() => {
       makeSchema(makePreset(["p"], {})),
       makeSchema(
         makePreset(["p"], {
-          graphileBuildOptions: {
-            orderByRelatedColumnAggregates: true,
-          },
+          orderByRelatedColumnAggregates: true,
         })
       ),
     ]);
