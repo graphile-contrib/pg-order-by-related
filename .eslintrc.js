@@ -6,12 +6,13 @@ module.exports = {
     es6: true,
     "jest/globals": true,
   },
-  plugins: ["@typescript-eslint", "jest"],
+  plugins: ["@typescript-eslint", "jest", "graphile-export"],
   extends: [
     "eslint:recommended",
     "plugin:@typescript-eslint/recommended",
     "plugin:jest/recommended",
     "plugin:prettier/recommended",
+    "plugin:graphile-export/recommended",
   ],
   rules: {
     "jest/expect-expect": ["off"],

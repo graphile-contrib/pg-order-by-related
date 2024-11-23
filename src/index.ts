@@ -1,7 +1,11 @@
 import type {} from "postgraphile";
+import type { SQL } from "postgraphile/pg-sql2";
 import type {
+  PgCodecRelation,
+  PgCodecWithAttributes,
   PgResource,
   PgResourceParameter,
+  PgSelectStep,
 } from "postgraphile/@dataplan/pg";
 import * as pkg from "../package.json";
 
@@ -38,6 +42,22 @@ declare global {
       }): string;
     }
   }
+  namespace GraphileBuild {
+    interface SchemaOptions {
+      /**
+       * Set `true` if you'd like to add related column aggregates to your
+       * schema; this is expensive so it's not recommended unless you're
+       * using [Trusted Documents](https://benjie.dev/graphql/trusted-documents).
+       */
+      orderByRelatedColumnAggregates?: boolean;
+    }
+  }
+}
+
+interface RelationSpec {
+  relationName: string;
+  relation: PgCodecRelation;
+  isOneToMany: boolean;
 }
 
 const PgOrderByRelatedPlugin: GraphileConfig.Plugin = {
@@ -117,185 +137,173 @@ const PgOrderByRelatedPlugin: GraphileConfig.Plugin = {
       GraphQLEnumType_values(values, build, context) {
         const {
           extend,
-          pgColumnFilter,
           inflection,
-          pgSql: sql,
-          pgOmit: omit,
-          pgIntrospectionResultsByKind: introspectionResultsByKind,
-          describePgEntity,
-          sqlCommentByAddingTags,
+          sql,
+          input: { pgRegistry },
+          behavior,
+          EXPORTABLE,
+          dataplanPg: { TYPES },
         } = build;
         const {
-          scope: { isPgRowSortEnum, pgIntrospection: table },
+          scope: { isPgRowSortEnum, pgCodec: rawPgCodec },
         } = context;
-        if (!isPgRowSortEnum || !table || table.kind !== "class") {
+        if (!isPgRowSortEnum || !rawPgCodec || !rawPgCodec.attributes) {
+          return values;
+        }
+        const pgCodec = rawPgCodec as PgCodecWithAttributes;
+
+        const resource = Object.values(pgRegistry.pgResources).find(
+          (r) => r.codec === pgCodec && !r.parameters
+        );
+        if (!resource) {
           return values;
         }
 
-        const backwardRelationSpecs = table.foreignConstraints
-          .filter((con) => con.type === "f")
-          .reduce((memo, foreignConstraint) => {
-            if (omit(foreignConstraint, "read")) {
+        const relationSpecs = Object.entries(resource.getRelations()).reduce(
+          (memo, [relationName, relation]) => {
+            if (!behavior.pgCodecRelationMatches(relation, "select")) {
               return memo;
             }
-            const foreignTable =
-              introspectionResultsByKind.classById[foreignConstraint.classId];
-            if (!foreignTable) {
-              throw new Error(
-                `Could not find the foreign table (constraint: ${foreignConstraint.name})`
-              );
-            }
-            if (omit(foreignTable, "read")) {
+            const { remoteResource } = relation;
+            if (!behavior.pgResourceMatches(remoteResource, "select")) {
               return memo;
             }
-            const keyAttributes = foreignConstraint.foreignKeyAttributes;
-            const foreignKeyAttributes = foreignConstraint.keyAttributes;
-            if (keyAttributes.some((attr) => omit(attr, "read"))) {
-              return memo;
-            }
-            if (foreignKeyAttributes.some((attr) => omit(attr, "read"))) {
-              return memo;
-            }
-            const isForeignKeyUnique = !!foreignTable.constraints.find(
-              (c) =>
-                (c.type === "p" || c.type === "u") &&
-                c.keyAttributeNums.length === foreignKeyAttributes.length &&
-                c.keyAttributeNums.every(
-                  (n, i) => foreignKeyAttributes[i].num === n
-                )
-            );
+            // NOTE: V4 version of this plugin factored in the behaviors on the attributes; V5 **does not** do this. Set behaviors on the relation to exclude it.
+            const isForeignKeyUnique = relation.isUnique;
             memo.push({
-              table,
-              keyAttributes,
-              foreignTable,
-              foreignKeyAttributes,
-              foreignConstraint,
+              relationName,
+              relation,
               isOneToMany: !isForeignKeyUnique,
             });
             return memo;
-          }, []);
+          },
+          [] as Array<RelationSpec>
+        );
+        const backwardRelationSpecs = relationSpecs.filter(
+          (r) => !!r.relation.isReferencee
+        );
+        const forwardRelationSpecs = relationSpecs.filter(
+          (r) => !r.relation.isReferencee
+        );
 
-        const forwardRelationSpecs = table.constraints
-          .filter((con) => con.type === "f")
-          .reduce((memo, constraint) => {
-            if (omit(constraint, "read")) {
-              return memo;
-            }
-            const foreignTable =
-              introspectionResultsByKind.classById[constraint.foreignClassId];
-            if (!foreignTable) {
-              throw new Error(
-                `Could not find the foreign table (constraint: ${constraint.name})`
-              );
-            }
-            if (omit(foreignTable, "read")) {
-              return memo;
-            }
-            const keyAttributes = constraint.keyAttributes;
-            const foreignKeyAttributes = constraint.foreignKeyAttributes;
-            if (keyAttributes.some((attr) => omit(attr, "read"))) {
-              return memo;
-            }
-            if (foreignKeyAttributes.some((attr) => omit(attr, "read"))) {
-              return memo;
-            }
-            memo.push({
-              table,
-              keyAttributes,
-              foreignTable,
-              foreignKeyAttributes,
-              constraint,
-            });
-            return memo;
-          }, []);
+        const orderEnumValuesFromRelationSpec = (
+          relationSpec: RelationSpec
+        ) => {
+          const { isOneToMany, relation, relationName } = relationSpec;
+          const isForward = !relation.isReferencee;
 
-        const orderEnumValuesFromRelationSpec = (relationSpec) => {
-          const {
-            keyAttributes,
-            foreignTable,
-            foreignKeyAttributes,
-            isOneToMany,
-            isForward,
-          } = relationSpec;
-
-          const sqlKeysMatch = (tableAlias) =>
-            sql.fragment`(${sql.join(
-              keyAttributes.map((attr, i) => {
-                return sql.fragment`${tableAlias}.${sql.identifier(
-                  attr.name
-                )} = ${sql.identifier(
-                  foreignTable.namespace.name,
-                  foreignTable.name
-                )}.${sql.identifier(foreignKeyAttributes[i].name)}`;
-              }),
-              ") and ("
-            )})`;
-
-          const inflectionKeyAttributes = isForward
-            ? keyAttributes
-            : foreignKeyAttributes;
+          const sqlKeysMatch = EXPORTABLE(
+            (relation, sql) => (localAlias: SQL, remoteAlias: SQL) =>
+              sql.fragment`(${sql.join(
+                relation.localAttributes.map((attributeName, i) => {
+                  return sql.fragment`${localAlias}.${sql.identifier(
+                    attributeName
+                  )} = ${remoteAlias}.${sql.identifier(
+                    relation.remoteAttributes[i]
+                  )}`;
+                }),
+                ") and ("
+              )})`,
+            [relation, sql]
+          );
 
           const enumValues = {};
+          const relationDetails: GraphileBuild.PgRelationsPluginRelationDetails =
+            { registry: pgRegistry, codec: pgCodec, relationName };
+          const from = relation.remoteResource.from;
 
           if (!isForward && isOneToMany) {
             // Count
-            const ascEnumName = inflection.orderByRelatedCountEnum(
-              true,
-              foreignTable,
-              inflectionKeyAttributes
+            const ascEnumName = inflection.orderByRelatedCountEnum({
+              relationDetails,
+              variant: "asc",
+            });
+            const descEnumName = inflection.orderByRelatedCountEnum({
+              relationDetails,
+              variant: "desc",
+            });
+            if (typeof from === "function") {
+              throw new Error(`We don't support relations to functions.`);
+            }
+            const sqlSubselect = EXPORTABLE(
+              (from, relation, sql, sqlKeysMatch) => (step: PgSelectStep) => {
+                const foreignTableAlias = sql.identifier(
+                  Symbol(relation.remoteResource.codec.name)
+                );
+                return sql.parens(
+                  sql`\
+select count(*)
+from ${from} as ${foreignTableAlias}
+where ${sqlKeysMatch(step.alias, foreignTableAlias)}
+`,
+                  true
+                );
+              },
+              [from, relation, sql, sqlKeysMatch]
             );
-            const descEnumName = inflection.orderByRelatedCountEnum(
-              false,
-              foreignTable,
-              inflectionKeyAttributes
-            );
-            const sqlSubselect = ({ queryBuilder }) => sql.fragment`(
-          select count(*)
-          from ${sql.identifier(foreignTable.namespace.name, foreignTable.name)}
-          where ${sqlKeysMatch(queryBuilder.getTableAlias())}
-          )`;
-            const countEnumValues = {
-              [ascEnumName]: {
-                value: {
-                  alias: ascEnumName.toLowerCase(),
-                  specs: [[sqlSubselect, true]],
+            const makePlan = (direction: "ASC" | "DESC") =>
+              EXPORTABLE(
+                (TYPES, direction, sqlSubselect) => (step: PgSelectStep) => {
+                  step.orderBy({
+                    codec: TYPES.bigint,
+                    fragment: sqlSubselect(step),
+                    direction,
+                  });
+                },
+                [TYPES, direction, sqlSubselect]
+              );
+            extend(
+              enumValues,
+              {
+                [ascEnumName]: {
+                  extensions: {
+                    grafast: {
+                      applyPlan: makePlan("ASC"),
+                    },
+                  },
+                },
+                [descEnumName]: {
+                  extensions: {
+                    grafast: {
+                      applyPlan: makePlan("DESC"),
+                    },
+                  },
                 },
               },
-              [descEnumName]: {
-                value: {
-                  alias: descEnumName.toLowerCase(),
-                  specs: [[sqlSubselect, false]],
-                },
-              },
-            };
-            extend(enumValues, countEnumValues);
+              "Adding order by related count enum values"
+            );
 
-            if (orderByRelatedColumnAggregates) {
+            if (build.options.orderByRelatedColumnAggregates) {
               // Column aggregates
-              const columnAggregateEnumValues = foreignTable.attributes.reduce(
-                (memo, attr) => {
-                  if (!pgColumnFilter(attr, build, context)) return memo;
-                  if (omit(attr, "order")) return memo;
+              const columnAggregateEnumValues = Object.entries(
+                relation.remoteResource.codec.attributes
+              ).reduce((memo, [attributeName, attribute]) => {
+                if (
+                  !behavior.pgCodecAttributeMatches(
+                    [relation.remoteResource.codec, attributeName],
+                    // TODO: this is probably the wrong behavior
+                    "order"
+                  )
+                ) {
+                  return memo;
+                }
+                for (const aggregateName of ["max", "min"]) {
+                  const ascEnumName =
+                    inflection.orderByRelatedColumnAggregateEnum({
+                      attributeName,
+                      variant: "asc",
+                      relationDetails,
+                    });
+                  const descEnumName =
+                    inflection.orderByRelatedColumnAggregateEnum(
+                      attr,
+                      false,
+                      foreignTable,
+                      inflectionKeyAttributes,
+                      aggregateName
+                    );
 
-                  for (const aggregateName of ["max", "min"]) {
-                    const ascEnumName =
-                      inflection.orderByRelatedColumnAggregateEnum(
-                        attr,
-                        true,
-                        foreignTable,
-                        inflectionKeyAttributes,
-                        aggregateName
-                      );
-                    const descEnumName =
-                      inflection.orderByRelatedColumnAggregateEnum(
-                        attr,
-                        false,
-                        foreignTable,
-                        inflectionKeyAttributes,
-                        aggregateName
-                      );
-
-                    const sqlSubselect = ({ queryBuilder }) => sql.fragment`(
+                  const sqlSubselect = ({ queryBuilder }) => sql.fragment`(
               select ${sql.raw(aggregateName)}(${sql.identifier(attr.name)})
               from ${sql.identifier(
                 foreignTable.namespace.name,
@@ -304,25 +312,23 @@ const PgOrderByRelatedPlugin: GraphileConfig.Plugin = {
               where ${sqlKeysMatch(queryBuilder.getTableAlias())}
               )`;
 
-                    memo = extend(memo, {
-                      [ascEnumName]: {
-                        value: {
-                          alias: ascEnumName.toLowerCase(),
-                          specs: [[sqlSubselect, true]],
-                        },
+                  memo = extend(memo, {
+                    [ascEnumName]: {
+                      value: {
+                        alias: ascEnumName.toLowerCase(),
+                        specs: [[sqlSubselect, true]],
                       },
-                      [descEnumName]: {
-                        value: {
-                          alias: descEnumName.toLowerCase(),
-                          specs: [[sqlSubselect, false]],
-                        },
+                    },
+                    [descEnumName]: {
+                      value: {
+                        alias: descEnumName.toLowerCase(),
+                        specs: [[sqlSubselect, false]],
                       },
-                    });
-                  }
-                  return memo;
-                },
-                {}
-              );
+                    },
+                  });
+                }
+                return memo;
+              }, {});
               extend(enumValues, columnAggregateEnumValues);
             }
           } else {
