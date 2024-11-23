@@ -8,7 +8,6 @@ import type {
   PgSelectStep,
 } from "postgraphile/@dataplan/pg";
 import * as pkg from "../package.json";
-import type { GraphQLEnumValueConfigMap } from "postgraphile/graphql";
 
 type Variant = "asc" | "desc" | "asc_nulls_last" | "desc_nulls_last";
 
@@ -55,7 +54,7 @@ declare global {
   }
 }
 
-const PgOrderByRelatedPlugin: GraphileConfig.Plugin = {
+export const PgOrderByRelatedPlugin: GraphileConfig.Plugin = {
   name: "PgOrderByRelatedPlugin",
   version: pkg.version,
 
@@ -443,7 +442,3 @@ where ${sqlKeysMatch(localAlias, remoteAlias)}
 };
 
 export default PgOrderByRelatedPlugin;
-// HACK: for TypeScript/Babel import
-module.exports = PgOrderByRelatedPlugin;
-module.exports.default = PgOrderByRelatedPlugin;
-Object.defineProperty(module.exports, "__esModule", { value: true });
