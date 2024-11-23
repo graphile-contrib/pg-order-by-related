@@ -1,3 +1,4 @@
+// @ts-check
 const core = require("./core");
 
 test(
