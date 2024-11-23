@@ -29,10 +29,10 @@ beforeAll(() => {
     // need and wait for them to be created in parallel.
     const [normal, columnAggregates] = await Promise.all([
       createPostGraphileSchema(pgClient, ["p"], {
-        appendPlugins: [require("../../index.js")],
+        appendPlugins: [require("../../dist/index.js")],
       }),
       createPostGraphileSchema(pgClient, ["p"], {
-        appendPlugins: [require("../../index.js")],
+        appendPlugins: [require("../../dist/index.js")],
         graphileBuildOptions: {
           orderByRelatedColumnAggregates: true,
         },

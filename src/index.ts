@@ -1,6 +1,11 @@
-function PgOrderByRelatedPlugin(builder, { orderByRelatedColumnAggregates }) {
+import type { Inflection, Plugin } from "graphile-build";
+
+const PgOrderByRelatedPlugin: Plugin = (
+  builder,
+  { orderByRelatedColumnAggregates }
+) => {
   builder.hook("build", (build) => {
-    const pkg = require("./package.json");
+    const pkg = require("../package.json");
 
     // Check dependencies
     if (!build.versions) {
@@ -8,7 +13,7 @@ function PgOrderByRelatedPlugin(builder, { orderByRelatedColumnAggregates }) {
         `Plugin ${pkg.name}@${pkg.version} requires graphile-build@^4.1.0 in order to check dependencies (current version: ${build.graphileBuildVersion})`
       );
     }
-    const depends = (name, range) => {
+    const depends = (name: string, range: string) => {
       if (!build.hasVersion(name, range)) {
         throw new Error(
           `Plugin ${pkg.name}@${pkg.version} requires ${name}@${range} (${
@@ -29,7 +34,13 @@ function PgOrderByRelatedPlugin(builder, { orderByRelatedColumnAggregates }) {
 
   builder.hook("inflection", (inflection) => {
     return Object.assign(inflection, {
-      orderByRelatedColumnEnum(attr, ascending, foreignTable, keyAttributes) {
+      orderByRelatedColumnEnum(
+        this: Inflection,
+        attr,
+        ascending,
+        foreignTable,
+        keyAttributes
+      ) {
         return `${this.constantCase(
           `${this._singularizedTableName(foreignTable)}-by-${keyAttributes
             .map((keyAttr) => this._columnName(keyAttr))
@@ -37,6 +48,7 @@ function PgOrderByRelatedPlugin(builder, { orderByRelatedColumnAggregates }) {
         )}__${this.orderByColumnEnum(attr, ascending)}`;
       },
       orderByRelatedComputedColumnEnum(
+        this: Inflection,
         pseudoColumnName,
         proc,
         ascending,
@@ -54,7 +66,12 @@ function PgOrderByRelatedPlugin(builder, { orderByRelatedColumnAggregates }) {
           ascending
         )}`;
       },
-      orderByRelatedCountEnum(ascending, foreignTable, keyAttributes) {
+      orderByRelatedCountEnum(
+        this: Inflection,
+        ascending,
+        foreignTable,
+        keyAttributes
+      ) {
         return `${this.constantCase(
           `${this.pluralize(
             this._singularizedTableName(foreignTable)
@@ -64,6 +81,7 @@ function PgOrderByRelatedPlugin(builder, { orderByRelatedColumnAggregates }) {
         )}__${this.constantCase(`count-${ascending ? "asc" : "desc"}`)}`;
       },
       orderByRelatedColumnAggregateEnum(
+        this: Inflection,
         attr,
         ascending,
         foreignTable,
@@ -514,9 +532,11 @@ function PgOrderByRelatedPlugin(builder, { orderByRelatedColumnAggregates }) {
     const pseudoColumnName = proc.name.substr(table.name.length + 1);
     return { argTypes, pseudoColumnName };
   }
-}
+};
 
+export default PgOrderByRelatedPlugin;
+
+// HACK: for TypeScript/Babel import
 module.exports = PgOrderByRelatedPlugin;
-// Hacks for TypeScript/Babel import
 module.exports.default = PgOrderByRelatedPlugin;
 Object.defineProperty(module.exports, "__esModule", { value: true });
