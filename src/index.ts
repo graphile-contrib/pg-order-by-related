@@ -1,12 +1,11 @@
 import type { Inflection, Plugin } from "graphile-build";
+import * as pkg from "../package.json";
 
 const PgOrderByRelatedPlugin: Plugin = (
   builder,
   { orderByRelatedColumnAggregates }
 ) => {
   builder.hook("build", (build) => {
-    const pkg = require("../package.json");
-
     // Check dependencies
     if (!build.versions) {
       throw new Error(

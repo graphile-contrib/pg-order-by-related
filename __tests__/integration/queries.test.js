@@ -1,3 +1,4 @@
+// @ts-check
 const { graphql } = require("graphql");
 const { withPgClient } = require("../helpers");
 const { createPostGraphileSchema } = require("postgraphile-core");
@@ -5,6 +6,7 @@ const { readdirSync, readFile: rawReadFile } = require("fs");
 const { resolve: resolvePath } = require("path");
 const { printSchema } = require("graphql/utilities");
 const debug = require("debug")("graphile-build:schema");
+const { default: PgOrderByRelatedPlugin } = require("../../dist/index.js");
 
 function readFile(filename, encoding) {
   return new Promise((resolve, reject) => {
@@ -29,10 +31,10 @@ beforeAll(() => {
     // need and wait for them to be created in parallel.
     const [normal, columnAggregates] = await Promise.all([
       createPostGraphileSchema(pgClient, ["p"], {
-        appendPlugins: [require("../../dist/index.js")],
+        appendPlugins: [PgOrderByRelatedPlugin],
       }),
       createPostGraphileSchema(pgClient, ["p"], {
-        appendPlugins: [require("../../dist/index.js")],
+        appendPlugins: [PgOrderByRelatedPlugin],
         graphileBuildOptions: {
           orderByRelatedColumnAggregates: true,
         },

@@ -1,6 +1,6 @@
+// @ts-check
 const pg = require("pg");
 const { readFile } = require("fs");
-const pgConnectionString = require("pg-connection-string");
 
 // This test suite can be flaky. Increase it’s timeout.
 jest.setTimeout(1000 * 20);
@@ -19,7 +19,7 @@ const withPgClient = async (url, fn) => {
     fn = url;
     url = process.env.TEST_DATABASE_URL;
   }
-  const pgPool = new pg.Pool(pgConnectionString.parse(url));
+  const pgPool = new pg.Pool({ connectionString: url });
   let client;
   try {
     client = await pgPool.connect();
@@ -51,7 +51,8 @@ const withDbFromUrl = async (url, fn) => {
 
 const withRootDb = (fn) => withDbFromUrl(process.env.TEST_DATABASE_URL, fn);
 
-let prepopulatedDBKeepalive;
+/** @type {(Promise<void> & {resolve: () => void, reject: () => void, client: import('pg').PoolClient, vars: any}) | null} */
+let prepopulatedDBKeepalive = null;
 
 const populateDatabase = async (client) => {
   await client.query(await readFilePromise(`${__dirname}/p-data.sql`, "utf8"));
@@ -89,14 +90,14 @@ withPrepopulatedDb.setup = (done) => {
   }
   let res;
   let rej;
-  prepopulatedDBKeepalive = new Promise((resolve, reject) => {
-    res = resolve;
-    rej = reject;
-  });
-  prepopulatedDBKeepalive.resolve = res;
-  prepopulatedDBKeepalive.reject = rej;
   withRootDb(async (client) => {
-    prepopulatedDBKeepalive.client = client;
+    prepopulatedDBKeepalive = Object.assign(
+      new Promise((resolve, reject) => {
+        res = resolve;
+        rej = reject;
+      }),
+      { resolve: res, reject: rej, client, vars: undefined }
+    );
     try {
       prepopulatedDBKeepalive.vars = await populateDatabase(client);
     } catch (e) {
