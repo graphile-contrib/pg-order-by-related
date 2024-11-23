@@ -127,10 +127,10 @@ const PgOrderByRelatedPlugin: GraphileConfig.Plugin = {
       },
     },
   },
+
   schema: {
     hooks: {
-      GraphQLEnumType_values(values, build, context) {
-        let enumValues = values;
+      GraphQLEnumType_values(enumValues, build, context) {
         const {
           extend,
           inflection,
@@ -144,7 +144,7 @@ const PgOrderByRelatedPlugin: GraphileConfig.Plugin = {
           scope: { isPgRowSortEnum, pgCodec: rawPgCodec },
         } = context;
         if (!isPgRowSortEnum || !rawPgCodec || !rawPgCodec.attributes) {
-          return values;
+          return enumValues;
         }
         const pgCodec = rawPgCodec as PgCodecWithAttributes;
 
@@ -152,7 +152,7 @@ const PgOrderByRelatedPlugin: GraphileConfig.Plugin = {
           (r) => r.codec === pgCodec && !r.parameters
         );
         if (!resource) {
-          return values;
+          return enumValues;
         }
 
         const relations = resource.getRelations() as Record<
@@ -164,6 +164,9 @@ const PgOrderByRelatedPlugin: GraphileConfig.Plugin = {
             continue;
           }
           const { remoteResource } = relation;
+          if (typeof remoteResource.from === "function") {
+            continue;
+          }
           if (!behavior.pgResourceMatches(remoteResource, "select")) {
             continue;
           }
@@ -189,34 +192,87 @@ const PgOrderByRelatedPlugin: GraphileConfig.Plugin = {
 
           const relationDetails: GraphileBuild.PgRelationsPluginRelationDetails =
             { registry: pgRegistry, codec: pgCodec, relationName };
-          const from = relation.remoteResource.from;
-          if (typeof from === "function") {
-            throw new Error(`We don't support relations to functions.`);
-          }
+
+          const addAscDesc = <
+            TInflectorName extends
+              | "orderByRelatedColumnEnum"
+              | "orderByRelatedComputedColumnEnum"
+              | "orderByRelatedCountEnum"
+              | "orderByRelatedColumnAggregateEnum"
+          >(
+            extendReason: string,
+            inflector: TInflectorName,
+            inflectionDetails: Omit<
+              Parameters<GraphileBuild.Inflection[TInflectorName]>[0],
+              "variant"
+            >,
+            sqlSubselect: (localAlias: SQL, remoteAlias: SQL) => SQL
+          ) => {
+            const relation =
+              relationDetails.registry.pgRelations[relationDetails.codec.name][
+                relationDetails.relationName
+              ];
+            const ascEnumName = build.inflection[inflector]({
+              ...inflectionDetails,
+              variant: "asc",
+            } as any);
+            const descEnumName = inflection.orderByRelatedCountEnum({
+              relationDetails,
+              variant: "desc",
+            });
+            const makePlan = (direction: "ASC" | "DESC") =>
+              EXPORTABLE(
+                (TYPES, direction, relation, sql, sqlSubselect) =>
+                  (step: PgSelectStep) => {
+                    const foreignTableAlias = sql.identifier(
+                      Symbol(relation.remoteResource.codec.name)
+                    );
+                    step.orderBy({
+                      codec: TYPES.bigint,
+                      fragment: sqlSubselect(step.alias, foreignTableAlias),
+                      direction,
+                    });
+                  },
+                [TYPES, direction, relation, sql, sqlSubselect]
+              );
+            extend(
+              enumValues,
+              {
+                [ascEnumName]: {
+                  extensions: {
+                    grafast: {
+                      applyPlan: makePlan("ASC"),
+                    },
+                  },
+                },
+                [descEnumName]: {
+                  extensions: {
+                    grafast: {
+                      applyPlan: makePlan("DESC"),
+                    },
+                  },
+                },
+              },
+              extendReason
+            );
+          };
 
           if (!isForward && isOneToMany) {
             // Count
-            enumValues = addAscDesc(
+            addAscDesc(
               "Adding order by related count enum values",
-              build,
-              relationDetails,
-              enumValues,
               "orderByRelatedCountEnum",
-              {
-                relationDetails,
-              },
+              { relationDetails },
               EXPORTABLE(
-                (from, sql, sqlKeysMatch) => (localAlias, remoteAlias) => {
-                  return sql.parens(
+                (remoteResource, sql, sqlKeysMatch) =>
+                  (localAlias, remoteAlias) =>
                     sql`\
-select count(*)
-from ${from} as ${remoteAlias}
-where ${sqlKeysMatch(localAlias, remoteAlias)}
-`,
-                    true
-                  );
-                },
-                [from, sql, sqlKeysMatch]
+(
+  select count(*)
+  from ${remoteResource.from as SQL} as ${remoteAlias}
+  where ${sqlKeysMatch(localAlias, remoteAlias)}
+)`,
+                [remoteResource, sql, sqlKeysMatch]
               )
             );
 
@@ -235,86 +291,39 @@ where ${sqlKeysMatch(localAlias, remoteAlias)}
                   continue;
                 }
                 for (const aggregateName of ["max", "min"]) {
-                  const ascEnumName =
-                    inflection.orderByRelatedColumnAggregateEnum({
+                  addAscDesc(
+                    `Adding related column aggregate order by enums for '${attributeName}'`,
+                    "orderByRelatedColumnAggregateEnum",
+                    {
                       aggregateName,
                       attributeName,
-                      variant: "asc",
                       relationDetails,
-                    });
-                  const descEnumName =
-                    inflection.orderByRelatedColumnAggregateEnum({
-                      aggregateName,
-                      attributeName,
-                      variant: "desc",
-                      relationDetails,
-                    });
-
-                  const sqlSubselect = EXPORTABLE(
-                    (
-                        aggregateName,
-                        attributeName,
-                        from,
-                        relation,
-                        sql,
-                        sqlKeysMatch
-                      ) =>
-                      (step: PgSelectStep) => {
-                        const foreignTableAlias = sql.identifier(
-                          Symbol(relation.remoteResource.codec.name)
-                        );
-                        return sql.parens(
+                    },
+                    EXPORTABLE(
+                      (
+                          aggregateName,
+                          attributeName,
+                          remoteResource,
+                          sql,
+                          sqlKeysMatch
+                        ) =>
+                        (localAlias, remoteAlias) =>
                           sql`\
-select ${sql.identifier(aggregateName)}(${foreignTableAlias}.${sql.identifier(
+(
+  select ${sql.identifier(aggregateName)}(${remoteAlias}.${sql.identifier(
                             attributeName
                           )})
-from ${from}
-where ${sqlKeysMatch(step.alias, foreignTableAlias)}
-`,
-                          true
-                        );
-                      },
-                    [
-                      aggregateName,
-                      attributeName,
-                      from,
-                      relation,
-                      sql,
-                      sqlKeysMatch,
-                    ]
-                  );
-                  const makePlan = (direction: "ASC" | "DESC") =>
-                    EXPORTABLE(
-                      (TYPES, direction, sqlSubselect) =>
-                        (step: PgSelectStep) => {
-                          step.orderBy({
-                            codec: TYPES.bigint,
-                            fragment: sqlSubselect(step),
-                            direction,
-                          });
-                        },
-                      [TYPES, direction, sqlSubselect]
-                    );
-
-                  enumValues = extend(
-                    enumValues,
-                    {
-                      [ascEnumName]: {
-                        extensions: {
-                          grafast: {
-                            applyPlan: makePlan("ASC"),
-                          },
-                        },
-                      },
-                      [descEnumName]: {
-                        extensions: {
-                          grafast: {
-                            applyPlan: makePlan("DESC"),
-                          },
-                        },
-                      },
-                    },
-                    `Adding related column aggregate order by enums for '${attributeName}'`
+  from ${remoteResource.from as SQL} as ${remoteAlias}
+  where ${sqlKeysMatch(localAlias, remoteAlias)}
+)`,
+                      [
+                        aggregateName,
+                        attributeName,
+                        remoteResource,
+                        sql,
+                        sqlKeysMatch,
+                      ]
+                    )
                   );
                 }
               }
@@ -332,65 +341,25 @@ where ${sqlKeysMatch(step.alias, foreignTableAlias)}
                 continue;
               }
 
-              const ascEnumName = inflection.orderByRelatedColumnEnum({
-                attributeName,
-                relationDetails,
-                variant: "asc",
-              });
-              const descEnumName = inflection.orderByRelatedColumnEnum({
-                attributeName,
-                relationDetails,
-                variant: "desc",
-              });
-
-              const sqlSubselect = EXPORTABLE(
-                (attributeName, from, relation, sql, sqlKeysMatch) =>
-                  (step: PgSelectStep) => {
-                    const foreignTableAlias = sql.identifier(
-                      Symbol(relation.remoteResource.codec.name)
-                    );
-                    return sql.parens(
-                      sql`\
-select ${foreignTableAlias}.${sql.identifier(attributeName)}
-from ${from}
-where ${sqlKeysMatch(step.alias, foreignTableAlias)}
-`,
-                      true
-                    );
-                  },
-                [attributeName, from, relation, sql, sqlKeysMatch]
-              );
-              const makePlan = (direction: "ASC" | "DESC") =>
-                EXPORTABLE(
-                  (TYPES, direction, sqlSubselect) => (step: PgSelectStep) => {
-                    step.orderBy({
-                      codec: TYPES.bigint,
-                      fragment: sqlSubselect(step),
-                      direction,
-                    });
-                  },
-                  [TYPES, direction, sqlSubselect]
-                );
-
-              enumValues = extend(
-                enumValues,
+              addAscDesc(
+                `Adding related-by-column orderBy enum values for ${pgCodec.name}->${relation.remoteResource.name}.${attributeName}.`,
+                "orderByRelatedColumnEnum",
                 {
-                  [ascEnumName]: {
-                    extensions: {
-                      grafast: {
-                        applyPlan: makePlan("ASC"),
-                      },
-                    },
-                  },
-                  [descEnumName]: {
-                    extensions: {
-                      grafast: {
-                        applyPlan: makePlan("DESC"),
-                      },
-                    },
-                  },
+                  attributeName,
+                  relationDetails,
                 },
-                `Adding related-by-column orderBy enum values for ${pgCodec.name}->${relation.remoteResource.name}.${attributeName}.`
+                EXPORTABLE(
+                  (attributeName, remoteResource, sql, sqlKeysMatch) =>
+                    (localAlias, remoteAlias) =>
+                      sql`
+(
+select ${remoteAlias}.${sql.identifier(attributeName)}
+from ${remoteResource.from as SQL} ${remoteAlias}
+where ${sqlKeysMatch(localAlias, remoteAlias)}
+)
+`,
+                  [attributeName, remoteResource, sql, sqlKeysMatch]
+                )
               );
             }
 
@@ -436,61 +405,32 @@ where ${sqlKeysMatch(step.alias, foreignTableAlias)}
                 continue;
               }
 
-              const pseudoColumnName = inflection.computedAttributeField({
-                resource,
-              });
-
               // Looks good
-              const ascEnumName = inflection.orderByRelatedComputedColumnEnum({
-                relationDetails,
-                resource,
-                variant: "asc",
-              });
-              const descEnumName = inflection.orderByRelatedComputedColumnEnum({
-                relationDetails,
-                resource,
-                variant: "desc",
-              });
-
-              const sqlSubselect = EXPORTABLE(
-                (from, relation, resource, sql, sqlKeysMatch) =>
-                  (step: PgSelectStep) => {
-                    const foreignTableAlias = sql.identifier(
-                      Symbol(relation.remoteResource.codec.name)
-                    );
-                    if (typeof resource.from !== "function")
-                      throw new Error(
-                        `Impossible... unless you mutated the resource definition?!`
-                      );
-                    return sql.parens(
-                      sql`\
-select ${resource.from({ placeholder: foreignTableAlias })}
-from ${from}
-where ${sqlKeysMatch(step.alias, foreignTableAlias)}
-`,
-                      true
-                    );
-                  },
-                [from, relation, resource, sql, sqlKeysMatch]
-              );
-
-              enumValues = extend(
-                enumValues,
+              addAscDesc(
+                `Adding orderBy enum value for computed column ${pgCodec.name}->${relation.remoteResource.name}.${resource.name}().`,
+                "orderByRelatedComputedColumnEnum",
                 {
-                  [ascEnumName]: {
-                    value: {
-                      alias: ascEnumName.toLowerCase(),
-                      specs: [[sqlSubselect, true]],
-                    },
-                  },
-                  [descEnumName]: {
-                    value: {
-                      alias: descEnumName.toLowerCase(),
-                      specs: [[sqlSubselect, false]],
-                    },
-                  },
+                  relationDetails,
+                  resource,
                 },
-                `Adding orderBy enum value for computed column ${pgCodec.name}->${relation.remoteResource.name}.${resource.name}().`
+                EXPORTABLE(
+                  (remoteResource, resource, sql, sqlKeysMatch) =>
+                    (localAlias, remoteAlias) => {
+                      if (typeof resource.from !== "function") {
+                        throw new Error(
+                          `Cannot be a computed column with a non-functional 'from'`
+                        );
+                      }
+                      return sql`
+(
+  select ${resource.from({ placeholder: remoteAlias })}
+  from ${remoteResource.from as SQL} as ${remoteAlias}
+  where ${sqlKeysMatch(localAlias, remoteAlias)}
+)
+                `;
+                    },
+                  [remoteResource, resource, sql, sqlKeysMatch]
+                )
               );
             }
           }
@@ -501,80 +441,6 @@ where ${sqlKeysMatch(step.alias, foreignTableAlias)}
     },
   },
 };
-
-function addAscDesc<
-  TInflectorName extends
-    | "orderByRelatedColumnEnum"
-    | "orderByRelatedComputedColumnEnum"
-    | "orderByRelatedCountEnum"
-    | "orderByRelatedColumnAggregateEnum"
->(
-  extendReason: string,
-  build: GraphileBuild.Build,
-  relationDetails: GraphileBuild.PgRelationsPluginRelationDetails,
-  enumValues: GraphQLEnumValueConfigMap,
-  inflector: TInflectorName,
-  inflectionDetails: Omit<
-    Parameters<GraphileBuild.Inflection[TInflectorName]>[0],
-    "variant"
-  >,
-  sqlSubselect: (localAlias: SQL, remoteAlias: SQL) => SQL
-) {
-  const relation =
-    relationDetails.registry.pgRelations[relationDetails.codec.name][
-      relationDetails.relationName
-    ];
-  const {
-    extend,
-    inflection,
-    EXPORTABLE,
-    dataplanPg: { TYPES },
-    sql,
-  } = build;
-  const ascEnumName = build.inflection[inflector]({
-    ...inflectionDetails,
-    variant: "asc",
-  } as any);
-  const descEnumName = inflection.orderByRelatedCountEnum({
-    relationDetails,
-    variant: "desc",
-  });
-  const makePlan = (direction: "ASC" | "DESC") =>
-    EXPORTABLE(
-      (TYPES, direction, relation, sql, sqlSubselect) =>
-        (step: PgSelectStep) => {
-          const foreignTableAlias = sql.identifier(
-            Symbol(relation.remoteResource.codec.name)
-          );
-          step.orderBy({
-            codec: TYPES.bigint,
-            fragment: sqlSubselect(step.alias, foreignTableAlias),
-            direction,
-          });
-        },
-      [TYPES, direction, relation, sql, sqlSubselect]
-    );
-  return extend(
-    enumValues,
-    {
-      [ascEnumName]: {
-        extensions: {
-          grafast: {
-            applyPlan: makePlan("ASC"),
-          },
-        },
-      },
-      [descEnumName]: {
-        extensions: {
-          grafast: {
-            applyPlan: makePlan("DESC"),
-          },
-        },
-      },
-    },
-    extendReason
-  );
-}
 
 export default PgOrderByRelatedPlugin;
 // HACK: for TypeScript/Babel import
