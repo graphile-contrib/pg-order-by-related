@@ -207,7 +207,7 @@ const PgOrderByRelatedPlugin: GraphileConfig.Plugin = {
             [relation, sql]
           );
 
-          const enumValues = {};
+          let enumValues = values;
           const relationDetails: GraphileBuild.PgRelationsPluginRelationDetails =
             { registry: pgRegistry, codec: pgCodec, relationName };
           const from = relation.remoteResource.from;
@@ -252,7 +252,7 @@ where ${sqlKeysMatch(step.alias, foreignTableAlias)}
                 },
                 [TYPES, direction, sqlSubselect]
               );
-            extend(
+            enumValues = extend(
               enumValues,
               {
                 [ascEnumName]: {
@@ -275,9 +275,9 @@ where ${sqlKeysMatch(step.alias, foreignTableAlias)}
 
             if (build.options.orderByRelatedColumnAggregates) {
               // Column aggregates
-              const columnAggregateEnumValues = Object.entries(
+              for (const attributeName of Object.keys(
                 relation.remoteResource.codec.attributes
-              ).reduce((memo, [attributeName, attribute]) => {
+              )) {
                 if (
                   !behavior.pgCodecAttributeMatches(
                     [relation.remoteResource.codec, attributeName],
@@ -285,51 +285,92 @@ where ${sqlKeysMatch(step.alias, foreignTableAlias)}
                     "order"
                   )
                 ) {
-                  return memo;
+                  continue;
                 }
                 for (const aggregateName of ["max", "min"]) {
                   const ascEnumName =
                     inflection.orderByRelatedColumnAggregateEnum({
+                      aggregateName,
                       attributeName,
                       variant: "asc",
                       relationDetails,
                     });
                   const descEnumName =
-                    inflection.orderByRelatedColumnAggregateEnum(
-                      attr,
-                      false,
-                      foreignTable,
-                      inflectionKeyAttributes,
-                      aggregateName
+                    inflection.orderByRelatedColumnAggregateEnum({
+                      aggregateName,
+                      attributeName,
+                      variant: "desc",
+                      relationDetails,
+                    });
+
+                  const sqlSubselect = EXPORTABLE(
+                    (
+                        aggregateName,
+                        attributeName,
+                        from,
+                        relation,
+                        sql,
+                        sqlKeysMatch
+                      ) =>
+                      (step: PgSelectStep) => {
+                        const foreignTableAlias = sql.identifier(
+                          Symbol(relation.remoteResource.codec.name)
+                        );
+                        return sql.parens(
+                          sql`\
+select ${sql.identifier(aggregateName)}(${foreignTableAlias}.${sql.identifier(
+                            attributeName
+                          )})
+from ${from}
+where ${sqlKeysMatch(step.alias, foreignTableAlias)}
+`,
+                          true
+                        );
+                      },
+                    [
+                      aggregateName,
+                      attributeName,
+                      from,
+                      relation,
+                      sql,
+                      sqlKeysMatch,
+                    ]
+                  );
+                  const makePlan = (direction: "ASC" | "DESC") =>
+                    EXPORTABLE(
+                      (TYPES, direction, sqlSubselect) =>
+                        (step: PgSelectStep) => {
+                          step.orderBy({
+                            codec: TYPES.bigint,
+                            fragment: sqlSubselect(step),
+                            direction,
+                          });
+                        },
+                      [TYPES, direction, sqlSubselect]
                     );
 
-                  const sqlSubselect = ({ queryBuilder }) => sql.fragment`(
-              select ${sql.raw(aggregateName)}(${sql.identifier(attr.name)})
-              from ${sql.identifier(
-                foreignTable.namespace.name,
-                foreignTable.name
-              )}
-              where ${sqlKeysMatch(queryBuilder.getTableAlias())}
-              )`;
-
-                  memo = extend(memo, {
-                    [ascEnumName]: {
-                      value: {
-                        alias: ascEnumName.toLowerCase(),
-                        specs: [[sqlSubselect, true]],
+                  enumValues = extend(
+                    enumValues,
+                    {
+                      [ascEnumName]: {
+                        extensions: {
+                          grafast: {
+                            applyPlan: makePlan("ASC"),
+                          },
+                        },
+                      },
+                      [descEnumName]: {
+                        extensions: {
+                          grafast: {
+                            applyPlan: makePlan("DESC"),
+                          },
+                        },
                       },
                     },
-                    [descEnumName]: {
-                      value: {
-                        alias: descEnumName.toLowerCase(),
-                        specs: [[sqlSubselect, false]],
-                      },
-                    },
-                  });
+                    `Adding related column aggregate order by enums for '${attributeName}'`
+                  );
                 }
-                return memo;
-              }, {});
-              extend(enumValues, columnAggregateEnumValues);
+              }
             }
           } else {
             // Columns
@@ -562,7 +603,6 @@ function getComputedColumnDetails(build, table, proc) {
 }
 
 export default PgOrderByRelatedPlugin;
-
 // HACK: for TypeScript/Babel import
 module.exports = PgOrderByRelatedPlugin;
 module.exports.default = PgOrderByRelatedPlugin;
