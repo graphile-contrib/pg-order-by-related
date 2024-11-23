@@ -16,8 +16,14 @@ module.exports = {
   rules: {
     "jest/expect-expect": ["off"],
     "@typescript-eslint/no-namespace": ["off"],
-
-    // Rules to disable in V5 port
-    "@typescript-eslint/no-var-requires": ["off"],
   },
+  overrides: [
+    {
+      files: "__tests__/**/*.js",
+      rules: {
+        // Rules to disable in V5 port
+        "@typescript-eslint/no-var-requires": ["off"],
+      },
+    },
+  ],
 };
