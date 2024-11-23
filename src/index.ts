@@ -535,3 +535,8 @@ const PgOrderByRelatedPlugin: Plugin = (
 };
 
 export default PgOrderByRelatedPlugin;
+
+// HACK: for TypeScript/Babel import
+module.exports = PgOrderByRelatedPlugin;
+module.exports.default = PgOrderByRelatedPlugin;
+Object.defineProperty(module.exports, "__esModule", { value: true });
