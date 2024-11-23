@@ -136,6 +136,7 @@ const PgOrderByRelatedPlugin: GraphileConfig.Plugin = {
   schema: {
     hooks: {
       GraphQLEnumType_values(values, build, context) {
+        let enumValues = values;
         const {
           extend,
           inflection,
@@ -180,16 +181,8 @@ const PgOrderByRelatedPlugin: GraphileConfig.Plugin = {
           },
           [] as Array<RelationSpec>
         );
-        const backwardRelationSpecs = relationSpecs.filter(
-          (r) => !!r.relation.isReferencee
-        );
-        const forwardRelationSpecs = relationSpecs.filter(
-          (r) => !r.relation.isReferencee
-        );
 
-        const orderEnumValuesFromRelationSpec = (
-          relationSpec: RelationSpec
-        ) => {
+        for (const relationSpec of relationSpecs) {
           const { isOneToMany, relation, relationName } = relationSpec;
           const isForward = !relation.isReferencee;
 
@@ -208,7 +201,6 @@ const PgOrderByRelatedPlugin: GraphileConfig.Plugin = {
             [relation, sql]
           );
 
-          let enumValues = values;
           const relationDetails: GraphileBuild.PgRelationsPluginRelationDetails =
             { registry: pgRegistry, codec: pgCodec, relationName };
           const from = relation.remoteResource.from;
@@ -548,63 +540,13 @@ where ${sqlKeysMatch(step.alias, foreignTableAlias)}
               );
             }
           }
+        }
 
-          return enumValues;
-        };
-
-        return extend(
-          values,
-          [
-            ...forwardRelationSpecs.map((spec) => ({
-              ...spec,
-              isForward: true,
-            })),
-            ...backwardRelationSpecs.map((spec) => ({
-              ...spec,
-              isForward: false,
-            })),
-          ].reduce(
-            (memo, spec) => extend(memo, orderEnumValuesFromRelationSpec(spec)),
-            {}
-          ),
-          `Adding related column order values for table '${table.name}'`
-        );
+        return enumValues;
       },
     },
   },
 };
-
-function getComputedColumnDetails(build, table, proc) {
-  if (!proc.isStable) return null;
-  if (proc.namespaceId !== table.namespaceId) return null;
-  if (!proc.name.startsWith(`${table.name}_`)) return null;
-  if (proc.argTypeIds.length < 1) return null;
-  if (proc.argTypeIds[0] !== table.type.id) return null;
-
-  const argTypes = proc.argTypeIds.reduce((prev, typeId, idx) => {
-    if (
-      proc.argModes.length === 0 || // all args are `in`
-      proc.argModes[idx] === "i" || // this arg is `in`
-      proc.argModes[idx] === "b" // this arg is `inout`
-    ) {
-      prev.push(build.pgIntrospectionResultsByKind.typeById[typeId]);
-    }
-    return prev;
-  }, []);
-  if (
-    argTypes
-      .slice(1)
-      .some(
-        (type) => type.type === "c" && type.class && type.class.isSelectable
-      )
-  ) {
-    // Accepts two input tables? Skip.
-    return null;
-  }
-
-  const pseudoColumnName = proc.name.substr(table.name.length + 1);
-  return { argTypes, pseudoColumnName };
-}
 
 export default PgOrderByRelatedPlugin;
 // HACK: for TypeScript/Babel import
