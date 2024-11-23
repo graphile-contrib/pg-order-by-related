@@ -347,7 +347,11 @@ export const PgOrderByRelatedPlugin: GraphileConfig.Plugin = {
               }
 
               addAscDesc(
-                `Adding related-by-column orderBy enum values for ${pgCodec.name}->${relation.remoteResource.name}.${attributeName}.`,
+                `Adding related-by-column orderBy enum values for ${
+                  pgCodec.name
+                }--[${relationName}${relation.isReferencee ? "*" : ""}]-->${
+                  relation.remoteResource.name
+                }.${attributeName}.`,
                 "orderByRelatedColumnEnum",
                 {
                   attributeName,
