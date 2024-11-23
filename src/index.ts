@@ -386,7 +386,7 @@ where ${sqlKeysMatch(localAlias, remoteAlias)}
               {
                 if (!r.parameters) continue;
                 if (!r.parameters[0]) continue;
-                if (r.parameters[0].codec !== pgCodec) continue;
+                if (r.parameters[0].codec !== remoteResource.codec) continue;
                 if (!behavior.pgResourceMatches(r, "typeField")) continue;
               }
 
