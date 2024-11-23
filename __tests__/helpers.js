@@ -1,7 +1,6 @@
 // @ts-check
 const pg = require("pg");
 const { readFile } = require("fs");
-const pgConnectionString = require("pg-connection-string");
 
 // This test suite can be flaky. Increase it’s timeout.
 jest.setTimeout(1000 * 20);
