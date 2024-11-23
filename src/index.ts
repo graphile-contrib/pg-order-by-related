@@ -180,8 +180,6 @@ export const PgOrderByRelatedPlugin: GraphileConfig.Plugin = {
           // NOTE: V4 version of this plugin factored in the behaviors on the attributes; V5 **does not** do this. Set behaviors on the relation to exclude it.
           const isOneToMany = !relation.isUnique;
 
-          const isForward = !relation.isReferencee;
-
           const sqlKeysMatch = EXPORTABLE(
             (relation, sql) => (localAlias: SQL, remoteAlias: SQL) =>
               sql.fragment`(${sql.join(
@@ -264,7 +262,7 @@ export const PgOrderByRelatedPlugin: GraphileConfig.Plugin = {
             );
           };
 
-          if (!isForward && isOneToMany) {
+          if (isOneToMany) {
             // Count
             addAscDesc(
               "Adding order by related count enum values",
