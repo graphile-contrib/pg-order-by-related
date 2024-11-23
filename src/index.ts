@@ -284,7 +284,7 @@ export const PgOrderByRelatedPlugin: GraphileConfig.Plugin = {
                   !behavior.pgCodecAttributeMatches(
                     [relation.remoteResource.codec, attributeName],
                     // TODO: this is probably the wrong behavior
-                    "order"
+                    "orderBy"
                   )
                 ) {
                   continue;
@@ -334,7 +334,7 @@ export const PgOrderByRelatedPlugin: GraphileConfig.Plugin = {
               if (
                 !behavior.pgCodecAttributeMatches(
                   [remoteCodec, attributeName],
-                  "order"
+                  "orderBy"
                 )
               ) {
                 continue;
