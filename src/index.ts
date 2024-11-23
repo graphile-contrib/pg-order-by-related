@@ -1,7 +1,6 @@
 import type {} from "postgraphile";
 import type { SQL } from "postgraphile/pg-sql2";
 import type {
-  PgCodec,
   PgCodecRelation,
   PgCodecWithAttributes,
   PgResource,
@@ -9,6 +8,7 @@ import type {
   PgSelectStep,
 } from "postgraphile/@dataplan/pg";
 import * as pkg from "../package.json";
+import type { GraphQLEnumValueConfigMap } from "postgraphile/graphql";
 
 type Variant = "asc" | "desc" | "asc_nulls_last" | "desc_nulls_last";
 
@@ -196,60 +196,28 @@ const PgOrderByRelatedPlugin: GraphileConfig.Plugin = {
 
           if (!isForward && isOneToMany) {
             // Count
-            const ascEnumName = inflection.orderByRelatedCountEnum({
+            enumValues = addAscDesc(
+              "Adding order by related count enum values",
+              build,
               relationDetails,
-              variant: "asc",
-            });
-            const descEnumName = inflection.orderByRelatedCountEnum({
-              relationDetails,
-              variant: "desc",
-            });
-            const sqlSubselect = EXPORTABLE(
-              (from, relation, sql, sqlKeysMatch) => (step: PgSelectStep) => {
-                const foreignTableAlias = sql.identifier(
-                  Symbol(relation.remoteResource.codec.name)
-                );
-                return sql.parens(
-                  sql`\
-select count(*)
-from ${from} as ${foreignTableAlias}
-where ${sqlKeysMatch(step.alias, foreignTableAlias)}
-`,
-                  true
-                );
-              },
-              [from, relation, sql, sqlKeysMatch]
-            );
-            const makePlan = (direction: "ASC" | "DESC") =>
-              EXPORTABLE(
-                (TYPES, direction, sqlSubselect) => (step: PgSelectStep) => {
-                  step.orderBy({
-                    codec: TYPES.bigint,
-                    fragment: sqlSubselect(step),
-                    direction,
-                  });
-                },
-                [TYPES, direction, sqlSubselect]
-              );
-            enumValues = extend(
               enumValues,
+              "orderByRelatedCountEnum",
               {
-                [ascEnumName]: {
-                  extensions: {
-                    grafast: {
-                      applyPlan: makePlan("ASC"),
-                    },
-                  },
-                },
-                [descEnumName]: {
-                  extensions: {
-                    grafast: {
-                      applyPlan: makePlan("DESC"),
-                    },
-                  },
-                },
+                relationDetails,
               },
-              "Adding order by related count enum values"
+              EXPORTABLE(
+                (from, sql, sqlKeysMatch) => (localAlias, remoteAlias) => {
+                  return sql.parens(
+                    sql`\
+select count(*)
+from ${from} as ${remoteAlias}
+where ${sqlKeysMatch(localAlias, remoteAlias)}
+`,
+                    true
+                  );
+                },
+                [from, sql, sqlKeysMatch]
+              )
             );
 
             if (build.options.orderByRelatedColumnAggregates) {
@@ -533,6 +501,80 @@ where ${sqlKeysMatch(step.alias, foreignTableAlias)}
     },
   },
 };
+
+function addAscDesc<
+  TInflectorName extends
+    | "orderByRelatedColumnEnum"
+    | "orderByRelatedComputedColumnEnum"
+    | "orderByRelatedCountEnum"
+    | "orderByRelatedColumnAggregateEnum"
+>(
+  extendReason: string,
+  build: GraphileBuild.Build,
+  relationDetails: GraphileBuild.PgRelationsPluginRelationDetails,
+  enumValues: GraphQLEnumValueConfigMap,
+  inflector: TInflectorName,
+  inflectionDetails: Omit<
+    Parameters<GraphileBuild.Inflection[TInflectorName]>[0],
+    "variant"
+  >,
+  sqlSubselect: (localAlias: SQL, remoteAlias: SQL) => SQL
+) {
+  const relation =
+    relationDetails.registry.pgRelations[relationDetails.codec.name][
+      relationDetails.relationName
+    ];
+  const {
+    extend,
+    inflection,
+    EXPORTABLE,
+    dataplanPg: { TYPES },
+    sql,
+  } = build;
+  const ascEnumName = build.inflection[inflector]({
+    ...inflectionDetails,
+    variant: "asc",
+  } as any);
+  const descEnumName = inflection.orderByRelatedCountEnum({
+    relationDetails,
+    variant: "desc",
+  });
+  const makePlan = (direction: "ASC" | "DESC") =>
+    EXPORTABLE(
+      (TYPES, direction, relation, sql, sqlSubselect) =>
+        (step: PgSelectStep) => {
+          const foreignTableAlias = sql.identifier(
+            Symbol(relation.remoteResource.codec.name)
+          );
+          step.orderBy({
+            codec: TYPES.bigint,
+            fragment: sqlSubselect(step.alias, foreignTableAlias),
+            direction,
+          });
+        },
+      [TYPES, direction, relation, sql, sqlSubselect]
+    );
+  return extend(
+    enumValues,
+    {
+      [ascEnumName]: {
+        extensions: {
+          grafast: {
+            applyPlan: makePlan("ASC"),
+          },
+        },
+      },
+      [descEnumName]: {
+        extensions: {
+          grafast: {
+            applyPlan: makePlan("DESC"),
+          },
+        },
+      },
+    },
+    extendReason
+  );
+}
 
 export default PgOrderByRelatedPlugin;
 // HACK: for TypeScript/Babel import
