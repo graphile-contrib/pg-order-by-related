@@ -142,7 +142,12 @@ export const PgOrderByRelatedPlugin: GraphileConfig.Plugin = {
         const {
           scope: { isPgRowSortEnum, pgCodec: rawPgCodec },
         } = context;
-        if (!isPgRowSortEnum || !rawPgCodec || !rawPgCodec.attributes) {
+        if (
+          !isPgRowSortEnum ||
+          !rawPgCodec ||
+          !rawPgCodec.attributes ||
+          rawPgCodec.polymorphism
+        ) {
           return enumValues;
         }
         const pgCodec = rawPgCodec as PgCodecWithAttributes;
@@ -164,6 +169,9 @@ export const PgOrderByRelatedPlugin: GraphileConfig.Plugin = {
           }
           const { remoteResource } = relation;
           if (typeof remoteResource.from === "function") {
+            continue;
+          }
+          if (remoteResource.codec.polymorphism) {
             continue;
           }
           if (!behavior.pgResourceMatches(remoteResource, "select")) {
