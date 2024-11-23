@@ -64,11 +64,15 @@ export const PgOrderByRelatedPlugin: GraphileConfig.Plugin = {
         _preset,
         { relationDetails, attributeName, variant }
       ) {
-        const prefix = this.constantCase(this.singleRelation(relationDetails));
         const relation =
           relationDetails.registry.pgRelations[relationDetails.codec.name]?.[
             relationDetails.relationName
           ];
+        const prefix = this.constantCase(
+          relation.isReferencee
+            ? this.singleRelationBackwards(relationDetails)
+            : this.singleRelation(relationDetails)
+        );
         if (!relation.isUnique)
           throw new Error(
             `inflection.orderByRelatedColumnEnum can only be used with unique relations`
@@ -86,11 +90,15 @@ export const PgOrderByRelatedPlugin: GraphileConfig.Plugin = {
         _preset,
         { relationDetails, resource, variant }
       ) {
-        const prefix = this.constantCase(this.singleRelation(relationDetails));
         const relation =
           relationDetails.registry.pgRelations[relationDetails.codec.name]?.[
             relationDetails.relationName
           ];
+        const prefix = this.constantCase(
+          relation.isReferencee
+            ? this.singleRelationBackwards(relationDetails)
+            : this.singleRelation(relationDetails)
+        );
         if (!relation.isUnique)
           throw new Error(
             `inflection.orderByRelatedColumnEnum can only be used with unique relations`
