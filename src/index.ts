@@ -211,6 +211,9 @@ const PgOrderByRelatedPlugin: GraphileConfig.Plugin = {
           const relationDetails: GraphileBuild.PgRelationsPluginRelationDetails =
             { registry: pgRegistry, codec: pgCodec, relationName };
           const from = relation.remoteResource.from;
+          if (typeof from === "function") {
+            throw new Error(`We don't support relations to functions.`);
+          }
 
           if (!isForward && isOneToMany) {
             // Count
@@ -222,9 +225,6 @@ const PgOrderByRelatedPlugin: GraphileConfig.Plugin = {
               relationDetails,
               variant: "desc",
             });
-            if (typeof from === "function") {
-              throw new Error(`We don't support relations to functions.`);
-            }
             const sqlSubselect = EXPORTABLE(
               (from, relation, sql, sqlKeysMatch) => (step: PgSelectStep) => {
                 const foreignTableAlias = sql.identifier(
@@ -374,76 +374,78 @@ where ${sqlKeysMatch(step.alias, foreignTableAlias)}
             }
           } else {
             // Columns
-            const columnEnumValues = foreignTable.attributes.reduce(
-              (memo, attr) => {
-                if (!pgColumnFilter(attr, build, context)) return memo;
-                if (omit(attr, "order")) return memo;
+            const remoteCodec = relation.remoteResource.codec;
+            for (const attributeName of Object.keys(remoteCodec.attributes)) {
+              if (
+                !behavior.pgCodecAttributeMatches(
+                  [remoteCodec, attributeName],
+                  "order"
+                )
+              ) {
+                continue;
+              }
 
-                const ascEnumName = inflection.orderByRelatedColumnEnum(
-                  attr,
-                  true,
-                  foreignTable,
-                  inflectionKeyAttributes
+              const ascEnumName = inflection.orderByRelatedColumnEnum({
+                attributeName,
+                relationDetails,
+                variant: "asc",
+              });
+              const descEnumName = inflection.orderByRelatedColumnEnum({
+                attributeName,
+                relationDetails,
+                variant: "desc",
+              });
+
+              const sqlSubselect = EXPORTABLE(
+                (attributeName, from, relation, sql, sqlKeysMatch) =>
+                  (step: PgSelectStep) => {
+                    const foreignTableAlias = sql.identifier(
+                      Symbol(relation.remoteResource.codec.name)
+                    );
+                    return sql.parens(
+                      sql`\
+select ${foreignTableAlias}.${sql.identifier(attributeName)}
+from ${from}
+where ${sqlKeysMatch(step.alias, foreignTableAlias)}
+`,
+                      true
+                    );
+                  },
+                [attributeName, from, relation, sql, sqlKeysMatch]
+              );
+              const makePlan = (direction: "ASC" | "DESC") =>
+                EXPORTABLE(
+                  (TYPES, direction, sqlSubselect) => (step: PgSelectStep) => {
+                    step.orderBy({
+                      codec: TYPES.bigint,
+                      fragment: sqlSubselect(step),
+                      direction,
+                    });
+                  },
+                  [TYPES, direction, sqlSubselect]
                 );
-                const descEnumName = inflection.orderByRelatedColumnEnum(
-                  attr,
-                  false,
-                  foreignTable,
-                  inflectionKeyAttributes
-                );
 
-                const sqlSubselect = ({ queryBuilder }) => sql.fragment`(
-            select ${sql.identifier(attr.name)}
-            from ${sql.identifier(
-              foreignTable.namespace.name,
-              foreignTable.name
-            )}
-            where ${sqlKeysMatch(queryBuilder.getTableAlias())}
-            )`;
-
-                memo = extend(
-                  memo,
-                  {
-                    [ascEnumName]: {
-                      value: {
-                        alias: ascEnumName.toLowerCase(),
-                        specs: [[sqlSubselect, true]],
+              enumValues = extend(
+                enumValues,
+                {
+                  [ascEnumName]: {
+                    extensions: {
+                      grafast: {
+                        applyPlan: makePlan("ASC"),
                       },
                     },
                   },
-                  `Adding ascending orderBy enum value for ${describePgEntity(
-                    attr
-                  )}. You can rename this field with:\n\n  ${sqlCommentByAddingTags(
-                    attr,
-                    {
-                      name: "newNameHere",
-                    }
-                  )}`
-                );
-                memo = extend(
-                  memo,
-                  {
-                    [descEnumName]: {
-                      value: {
-                        alias: descEnumName.toLowerCase(),
-                        specs: [[sqlSubselect, false]],
+                  [descEnumName]: {
+                    extensions: {
+                      grafast: {
+                        applyPlan: makePlan("DESC"),
                       },
                     },
                   },
-                  `Adding descending orderBy enum value for ${describePgEntity(
-                    attr
-                  )}. You can rename this field with:\n\n  ${sqlCommentByAddingTags(
-                    attr,
-                    {
-                      name: "newNameHere",
-                    }
-                  )}`
-                );
-                return memo;
-              },
-              {}
-            );
-            extend(enumValues, columnEnumValues);
+                },
+                `Adding related-by-column orderBy enum values for ${pgCodec.name}->${relation.remoteResource.name}.${attributeName}.`
+              );
+            }
 
             // Computed columns
             const computedColumnEnumValues =
