@@ -11,6 +11,8 @@ const connectionString =
 let pool;
 beforeAll(() => {
   pool = new pg.Pool({ connectionString });
+  pool.on("error", () => {});
+  pool.on("connect", (client) => client.on("error", () => {}));
 });
 
 afterAll(() => {
