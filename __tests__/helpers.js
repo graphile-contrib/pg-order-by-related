@@ -1,5 +1,8 @@
 // @ts-check
-const { makePgService } = require("postgraphile/adaptors/pg");
+const {
+  makePgService,
+  makeWithPgClientViaPgClientAlreadyInTransaction,
+} = require("postgraphile/adaptors/pg");
 const pg = require("pg");
 const { readFile } = require("fs/promises");
 const { default: PgOrderByRelatedPlugin } = require("../dist/index.js");
@@ -19,10 +22,28 @@ afterAll(() => {
   pool?.end();
 });
 
+/** @type {GraphileConfig.Plugin} */
+const ShoveClientIntoContextPlugin = {
+  name: "ShoveClientIntoContextPlugin",
+
+  grafast: {
+    middleware: {
+      prepareArgs(next, event) {
+        const pgClient = event.args.contextValue.pgClient;
+        if (pgClient) {
+          event.args.contextValue.withPgClient =
+            makeWithPgClientViaPgClientAlreadyInTransaction(pgClient, true);
+        }
+        return next();
+      },
+    },
+  },
+};
+
 /** @type {(schemas: string[], options: import("postgraphile/presets/v4").V4Options) => GraphileConfig.Preset} */
 const makePreset = (schemas, options) => ({
   extends: [makeV4Preset(options)],
-  plugins: [PgOrderByRelatedPlugin],
+  plugins: [PgOrderByRelatedPlugin, ShoveClientIntoContextPlugin],
   pgServices: [
     makePgService({
       pool,

@@ -69,6 +69,10 @@ beforeAll(() => {
           const result = await grafast({
             schema,
             source,
+            variableValues: {},
+            contextValue: {
+              pgClient,
+            },
             resolvedPreset,
             requestContext: {},
           });
