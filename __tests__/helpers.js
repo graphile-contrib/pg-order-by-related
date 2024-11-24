@@ -8,13 +8,22 @@ const { makeV4Preset } = require("postgraphile/presets/v4");
 const connectionString =
   process.env.TEST_DATABASE_URL || "postgres:///pg_order_by_related";
 
+let pool;
+beforeAll(() => {
+  pool = new pg.Pool({ connectionString });
+});
+
+afterAll(() => {
+  pool?.end();
+});
+
 /** @type {(schemas: string[], options: import("postgraphile/presets/v4").V4Options) => GraphileConfig.Preset} */
 const makePreset = (schemas, options) => ({
   extends: [makeV4Preset(options)],
   plugins: [PgOrderByRelatedPlugin],
   pgServices: [
     makePgService({
-      connectionString,
+      pool,
       schemas,
     }),
   ],
