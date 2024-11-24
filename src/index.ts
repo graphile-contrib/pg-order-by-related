@@ -1,4 +1,5 @@
 import type {} from "postgraphile";
+import type {} from "postgraphile/presets/v4";
 import type { SQL } from "postgraphile/pg-sql2";
 import type {
   PgCodecRelation,
@@ -51,6 +52,12 @@ declare global {
        */
       orderByRelatedColumnAggregates?: boolean;
     }
+  }
+}
+
+declare module "postgraphile/presets/v4" {
+  interface V4GraphileBuildOptions {
+    orderByRelatedColumnAggregates?: boolean;
   }
 }
 
