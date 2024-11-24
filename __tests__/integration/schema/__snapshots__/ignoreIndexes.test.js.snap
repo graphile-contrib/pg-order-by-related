@@ -42,7 +42,7 @@ type BackwardCompoundsConnection {
   """
   A list of edges which contains the \`BackwardCompound\` and cursor to aid in pagination.
   """
-  edges: [BackwardCompoundsEdge!]!
+  edges: [BackwardCompoundsEdge]!
 
   """A list of \`BackwardCompound\` objects."""
   nodes: [BackwardCompound]!
@@ -99,7 +99,7 @@ type BackwardsConnection {
   """
   A list of edges which contains the \`Backward\` and cursor to aid in pagination.
   """
-  edges: [BackwardsEdge!]!
+  edges: [BackwardsEdge]!
 
   """A list of \`Backward\` objects."""
   nodes: [Backward]!
@@ -140,6 +140,8 @@ enum BackwardsOrderBy {
 }
 
 type Child implements Node {
+  """Reads a single \`Foo\` that is related to this \`Child\`."""
+  fooByFooId: Foo
   fooId: Int
   id: Int!
   name: String!
@@ -163,7 +165,7 @@ type ChildrenConnection {
   """
   A list of edges which contains the \`Child\` and cursor to aid in pagination.
   """
-  edges: [ChildrenEdge!]!
+  edges: [ChildrenEdge]!
 
   """A list of \`Child\` objects."""
   nodes: [Child]!
@@ -186,6 +188,14 @@ type ChildrenEdge {
 
 """Methods to use when ordering \`Child\`."""
 enum ChildrenOrderBy {
+  FOO_BY_FOO_ID__BACKWARD_COMPOUND_1_ASC
+  FOO_BY_FOO_ID__BACKWARD_COMPOUND_1_DESC
+  FOO_BY_FOO_ID__FORWARD_COMPOUND_1_ASC
+  FOO_BY_FOO_ID__FORWARD_COMPOUND_1_DESC
+  FOO_BY_FOO_ID__FORWARD_ID_ASC
+  FOO_BY_FOO_ID__FORWARD_ID_DESC
+  FOO_BY_FOO_ID__ID_ASC
+  FOO_BY_FOO_ID__ID_DESC
   ID_ASC
   ID_DESC
   NATURAL
@@ -220,6 +230,9 @@ type Foo implements Node {
   A globally unique identifier. Can be used in various places throughout the system to identify this single value.
   """
   nodeId: ID!
+
+  """Reads a single \`Parent\` that is related to this \`Foo\`."""
+  parentByParentId: Parent
   parentId: Int
 }
 
@@ -245,7 +258,7 @@ type FoosConnection {
   """
   A list of edges which contains the \`Foo\` and cursor to aid in pagination.
   """
-  edges: [FoosEdge!]!
+  edges: [FoosEdge]!
 
   """A list of \`Foo\` objects."""
   nodes: [Foo]!
@@ -289,6 +302,8 @@ enum FoosOrderBy {
   ID_ASC
   ID_DESC
   NATURAL
+  PARENT_BY_PARENT_ID__ID_ASC
+  PARENT_BY_PARENT_ID__ID_DESC
   PRIMARY_KEY_ASC
   PRIMARY_KEY_DESC
 }
@@ -335,7 +350,7 @@ type ForwardCompoundsConnection {
   """
   A list of edges which contains the \`ForwardCompound\` and cursor to aid in pagination.
   """
-  edges: [ForwardCompoundsEdge!]!
+  edges: [ForwardCompoundsEdge]!
 
   """A list of \`ForwardCompound\` objects."""
   nodes: [ForwardCompound]!
@@ -388,7 +403,7 @@ type ForwardsConnection {
   """
   A list of edges which contains the \`Forward\` and cursor to aid in pagination.
   """
-  edges: [ForwardsEdge!]!
+  edges: [ForwardsEdge]!
 
   """A list of \`Forward\` objects."""
   nodes: [Forward]!
@@ -474,7 +489,7 @@ type ParentsConnection {
   """
   A list of edges which contains the \`Parent\` and cursor to aid in pagination.
   """
-  edges: [ParentsEdge!]!
+  edges: [ParentsEdge]!
 
   """A list of \`Parent\` objects."""
   nodes: [Parent]!
@@ -714,7 +729,11 @@ type Query implements Node {
     """The globally unique \`ID\` to be used in selecting a single \`Backward\`."""
     nodeId: ID!
   ): Backward
+
+  """Get a single \`Backward\`."""
   backwardByFooId(fooId: Int!): Backward
+
+  """Get a single \`Backward\`."""
   backwardById(id: Int!): Backward
 
   """Reads a single \`BackwardCompound\` using its globally unique \`ID\`."""
@@ -724,6 +743,8 @@ type Query implements Node {
     """
     nodeId: ID!
   ): BackwardCompound
+
+  """Get a single \`BackwardCompound\`."""
   backwardCompoundByBackwardCompound1AndBackwardCompound2(backwardCompound1: Int!, backwardCompound2: Int!): BackwardCompound
 
   """Reads a single \`Child\` using its globally unique \`ID\`."""
@@ -731,6 +752,8 @@ type Query implements Node {
     """The globally unique \`ID\` to be used in selecting a single \`Child\`."""
     nodeId: ID!
   ): Child
+
+  """Get a single \`Child\`."""
   childById(id: Int!): Child
 
   """Reads a single \`Foo\` using its globally unique \`ID\`."""
@@ -738,9 +761,17 @@ type Query implements Node {
     """The globally unique \`ID\` to be used in selecting a single \`Foo\`."""
     nodeId: ID!
   ): Foo
+
+  """Get a single \`Foo\`."""
   fooByBackwardCompound1AndBackwardCompound2(backwardCompound1: Int!, backwardCompound2: Int!): Foo
+
+  """Get a single \`Foo\`."""
   fooByForwardCompound1AndForwardCompound2(forwardCompound1: Int!, forwardCompound2: Int!): Foo
+
+  """Get a single \`Foo\`."""
   fooByForwardId(forwardId: Int!): Foo
+
+  """Get a single \`Foo\`."""
   fooById(id: Int!): Foo
 
   """Reads a single \`Forward\` using its globally unique \`ID\`."""
@@ -748,6 +779,8 @@ type Query implements Node {
     """The globally unique \`ID\` to be used in selecting a single \`Forward\`."""
     nodeId: ID!
   ): Forward
+
+  """Get a single \`Forward\`."""
   forwardById(id: Int!): Forward
 
   """Reads a single \`ForwardCompound\` using its globally unique \`ID\`."""
@@ -757,6 +790,8 @@ type Query implements Node {
     """
     nodeId: ID!
   ): ForwardCompound
+
+  """Get a single \`ForwardCompound\`."""
   forwardCompoundByForwardCompound1AndForwardCompound2(forwardCompound1: Int!, forwardCompound2: Int!): ForwardCompound
 
   """Fetches an object given its globally unique \`ID\`."""
@@ -775,6 +810,8 @@ type Query implements Node {
     """The globally unique \`ID\` to be used in selecting a single \`Parent\`."""
     nodeId: ID!
   ): Parent
+
+  """Get a single \`Parent\`."""
   parentById(id: Int!): Parent
 
   """
@@ -782,6 +819,5 @@ type Query implements Node {
   which can only query top level fields if they are in a particular form.
   """
   query: Query!
-}
-"
+}"
 `;
