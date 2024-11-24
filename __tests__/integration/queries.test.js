@@ -76,7 +76,7 @@ beforeAll(() => {
             throw new Error(`Didn't expect an async iterable`);
           }
           if (result.errors) {
-            console.log(result.errors.map((e) => e.originalError));
+            console.log(result.errors.map((e) => e.originalError ?? e));
           }
           return result;
         })
