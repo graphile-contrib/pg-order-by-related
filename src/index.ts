@@ -89,8 +89,6 @@ export const PgOrderByRelatedPlugin: GraphileConfig.Plugin = {
           codec: remoteCodec,
           attributeName,
           variant,
-          // This is being removed from newer versions
-          attribute: remoteCodec.attributes[attributeName],
         })}`;
       },
       orderByRelatedComputedColumnEnum(
@@ -116,14 +114,18 @@ export const PgOrderByRelatedPlugin: GraphileConfig.Plugin = {
         })}`;
       },
       orderByRelatedCountEnum(_preset, { relationDetails, variant }) {
-        const prefix = this.constantCase(this._manyRelation(relationDetails));
+        const prefix = this.constantCase(
+          this._manyRelationRaw(relationDetails)
+        );
         return `${prefix}__${this.constantCase(`count-${variant}`)}`;
       },
       orderByRelatedColumnAggregateEnum(
         _preset,
         { relationDetails, attributeName, aggregateName, variant }
       ) {
-        const prefix = this.constantCase(this._manyRelation(relationDetails));
+        const prefix = this.constantCase(
+          this._manyRelationRaw(relationDetails)
+        );
         const relation =
           relationDetails.registry.pgRelations[relationDetails.codec.name]?.[
             relationDetails.relationName
@@ -135,8 +137,6 @@ export const PgOrderByRelatedPlugin: GraphileConfig.Plugin = {
           codec: remoteCodec,
           attributeName,
           variant,
-          // This is being removed from newer versions
-          attribute: remoteCodec.attributes[attributeName],
         })}`;
       },
     },
