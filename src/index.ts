@@ -6,7 +6,7 @@ import type {
   PgCodecWithAttributes,
   PgResource,
   PgResourceParameter,
-  PgSelectStep,
+  PgSelectQueryBuilder,
 } from "postgraphile/@dataplan/pg";
 import * as pkg from "../package.json";
 
@@ -147,7 +147,6 @@ export const PgOrderByRelatedPlugin: GraphileConfig.Plugin = {
       GraphQLEnumType_values(enumValues, build, context) {
         const {
           extend,
-          inflection,
           sql,
           input: { pgRegistry },
           behavior,
@@ -247,16 +246,19 @@ export const PgOrderByRelatedPlugin: GraphileConfig.Plugin = {
               ...inflectionDetails,
               variant: "desc",
             });
-            const makePlan = (direction: "ASC" | "DESC") =>
+            const makeApply = (direction: "ASC" | "DESC") =>
               EXPORTABLE(
                 (TYPES, direction, relation, sql, sqlSubselect) =>
-                  (step: PgSelectStep) => {
+                  (queryBuilder: PgSelectQueryBuilder) => {
                     const foreignTableAlias = sql.identifier(
                       Symbol(relation.remoteResource.codec.name)
                     );
-                    step.orderBy({
+                    queryBuilder.orderBy({
                       codec: TYPES.bigint,
-                      fragment: sqlSubselect(step.alias, foreignTableAlias),
+                      fragment: sqlSubselect(
+                        queryBuilder.alias,
+                        foreignTableAlias
+                      ),
                       direction,
                     });
                   },
@@ -268,14 +270,14 @@ export const PgOrderByRelatedPlugin: GraphileConfig.Plugin = {
                 [ascEnumName]: {
                   extensions: {
                     grafast: {
-                      applyPlan: makePlan("ASC"),
+                      apply: makeApply("ASC"),
                     },
                   },
                 },
                 [descEnumName]: {
                   extensions: {
                     grafast: {
-                      applyPlan: makePlan("DESC"),
+                      apply: makeApply("DESC"),
                     },
                   },
                 },
