@@ -57,7 +57,7 @@ exports[`columnAggregates.graphql 1`] = `
           "childrenByFooId": {
             "nodes": [],
           },
-          "id": 3,
+          "id": 5,
         },
         {
           "childrenByFooId": {
@@ -69,7 +69,7 @@ exports[`columnAggregates.graphql 1`] = `
           "childrenByFooId": {
             "nodes": [],
           },
-          "id": 5,
+          "id": 3,
         },
         {
           "childrenByFooId": {
@@ -153,7 +153,7 @@ exports[`columnAggregates.graphql 1`] = `
           "childrenByFooId": {
             "nodes": [],
           },
-          "id": 3,
+          "id": 5,
         },
         {
           "childrenByFooId": {
@@ -165,7 +165,7 @@ exports[`columnAggregates.graphql 1`] = `
           "childrenByFooId": {
             "nodes": [],
           },
-          "id": 5,
+          "id": 3,
         },
         {
           "childrenByFooId": {
@@ -432,19 +432,19 @@ exports[`order-by-related.graphql 1`] = `
           "childrenByFooId": {
             "totalCount": 2,
           },
-          "id": 1,
+          "id": 2,
         },
         {
           "childrenByFooId": {
             "totalCount": 2,
           },
-          "id": 2,
+          "id": 1,
         },
         {
           "childrenByFooId": {
             "totalCount": 0,
           },
-          "id": 3,
+          "id": 5,
         },
         {
           "childrenByFooId": {
@@ -456,7 +456,7 @@ exports[`order-by-related.graphql 1`] = `
           "childrenByFooId": {
             "totalCount": 0,
           },
-          "id": 5,
+          "id": 3,
         },
       ],
     },
@@ -627,25 +627,25 @@ exports[`order-by-related.graphql 1`] = `
           "parentByParentId": null,
         },
         {
-          "id": 3,
-          "parentByParentId": {
-            "name": "parent2",
-          },
-        },
-        {
           "id": 4,
           "parentByParentId": {
             "name": "parent2",
           },
         },
         {
-          "id": 1,
+          "id": 3,
+          "parentByParentId": {
+            "name": "parent2",
+          },
+        },
+        {
+          "id": 2,
           "parentByParentId": {
             "name": "parent1",
           },
         },
         {
-          "id": 2,
+          "id": 1,
           "parentByParentId": {
             "name": "parent1",
           },
