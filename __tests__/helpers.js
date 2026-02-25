@@ -70,7 +70,7 @@ const withPgClientForUrl = async (url, fn) => {
     try {
       await client.release();
     } catch (e) {
-      console.error("Error releasing pgClient", e); // eslint-disable-line no-console
+      console.error("Error releasing pgClient", e);
     }
     await pgPool.end();
   }
@@ -122,7 +122,7 @@ const withPrepopulatedDb = async (fn) => {
     await client.query("ROLLBACK TO SAVEPOINT pristine;");
   } catch (e) {
     err = err || e;
-    console.error("ERROR ROLLING BACK", /** @type{any} */ (e)?.message); // eslint-disable-line no-console
+    console.error("ERROR ROLLING BACK", /** @type{any} */ (e)?.message);
   }
   if (err) {
     throw err;
@@ -147,7 +147,7 @@ withPrepopulatedDb.setup = (done) => {
       prepopulatedDBKeepalive.vars = await populateDatabase(client);
     } catch (err) {
       const e = /** @type {Error} */ (err);
-      console.error("FAILED TO PREPOPULATE DB!", e.message); // eslint-disable-line no-console
+      console.error("FAILED TO PREPOPULATE DB!", e.message);
       return done(e);
     }
     await client.query("SAVEPOINT pristine;");
