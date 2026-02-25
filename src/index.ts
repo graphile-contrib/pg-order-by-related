@@ -419,7 +419,7 @@ where ${sqlKeysMatch(localAlias, remoteAlias)}
                 continue;
 
               // Must have only one required argument
-              if (resource.parameters.slice(1).some((p) => p.required))
+              if (resource.parameters.slice(1).some((p) => !p.optional))
                 continue;
 
               let underlyingCodec = resource.codec;
