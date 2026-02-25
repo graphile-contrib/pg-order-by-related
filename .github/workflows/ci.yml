@@ -12,12 +12,12 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v6
 
-      - name: Use Node.js 18
-        uses: actions/setup-node@v3
+      - name: Use Node.js 22
+        uses: actions/setup-node@v6
         with:
-          node-version: 18
+          node-version: 22
 
       - name: Install
         run: yarn --immutable --ignore-engines
@@ -42,15 +42,12 @@ jobs:
       fail-fast: false
       matrix:
         postgres-version:
-          - 11
           - 12
-          - 13
           - 14
-          - 15
-        node-version:
-          - 14
-          - 16
           - 18
+        node-version:
+          - 22
+          - 24
 
     name: test (node:${{ matrix.node-version }}, postgres:${{ matrix.postgres-version }})
 
@@ -70,10 +67,10 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v6
 
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v6
         with:
           node-version: ${{ matrix.node-version }}
 
