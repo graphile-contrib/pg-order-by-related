@@ -5,7 +5,7 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "format": "prettier --ignore-path ./.eslintignore",
+    "format": "prettier --ignore-path ./.lintignore",
     "format:all": "yarn format '**/*.{json,md,html,js,jsx,ts,tsx}'",
     "format:fix": "yarn format:all --write",
     "format:check": "yarn format:all --list-different",
@@ -23,20 +23,26 @@
     "url": "https://github.com/graphile-contrib/pg-order-by-related/issues"
   },
   "devDependencies": {
+    "@eslint/compat": "^2.0.0",
+    "@eslint/eslintrc": "^3.3.1",
+    "@eslint/js": "^9.39.1",
     "@tsconfig/node18": "^18.2.4",
-    "@typescript-eslint/eslint-plugin": "5.59.0",
-    "@typescript-eslint/parser": "5.59.0",
-    "eslint": "8.28.0",
-    "eslint-config-prettier": "8.5.0",
-    "eslint-plugin-graphile-export": "^1.0.0-rc.1",
-    "eslint-plugin-jest": "27.1.6",
-    "eslint-plugin-prettier": "4.2.1",
-    "eslint_d": "^14.2.2",
+    "@typescript-eslint/parser": "^8.47.0",
+    "eslint": "^9.39.1",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-import-resolver-typescript": "^4.4.4",
+    "eslint-plugin-graphile-export": "^1.0.0-rc.4",
+    "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-jest": "^28.14.0",
+    "eslint-plugin-simple-import-sort": "^12.1.1",
+    "eslint-plugin-tsdoc": "^0.5.0",
+    "eslint_d": "^14.3.0",
     "jest": "29.3.1",
     "pg": "8.8.0",
-    "postgraphile": "^5.0.0-rc.1",
+    "postgraphile": "^5.0.0-rc.9",
     "prettier": "2.8.0",
-    "typescript": "^5.7.2"
+    "typescript": "^5.7.2",
+    "typescript-eslint": "^8.47.0"
   },
   "jest": {
     "testRegex": "__tests__/.*\\.test\\.js$"

@@ -2,7 +2,6 @@
 const { withPgClient, makePreset } = require("../../helpers");
 const { makeSchema } = require("postgraphile");
 const {
-  GraphQLSchema,
   lexicographicSortSchema,
   printSchema,
 } = require("postgraphile/graphql");
@@ -22,7 +21,7 @@ exports.test = (schemas, options, setup) => () =>
     expect(printSchemaOrdered(schema)).toMatchSnapshot();
   });
 
-/** @type {(schema: GraphQLSchema) => string} */
+/** @type {(schema: import('graphql').GraphQLSchema) => string} */
 function printSchemaOrdered(originalSchema) {
   return printSchema(lexicographicSortSchema(originalSchema));
 }
