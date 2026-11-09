@@ -2,6 +2,7 @@ import type {} from "postgraphile";
 import type {} from "postgraphile/presets/v4";
 import type { SQL } from "postgraphile/pg-sql2";
 import type {
+  PgCodec,
   PgCodecRelation,
   PgCodecWithAttributes,
   PgResource,
@@ -232,7 +233,9 @@ export const PgOrderByRelatedPlugin: GraphileConfig.Plugin = {
               Parameters<GraphileBuild.Inflection[TInflectorName]>[0],
               "variant"
             >,
-            sqlSubselect: (localAlias: SQL, remoteAlias: SQL) => SQL
+            sqlSubselect: (localAlias: SQL, remoteAlias: SQL) => SQL,
+            codec: PgCodec = TYPES.bigint,
+            nullable = false
           ) => {
             const relation =
               relationDetails.registry.pgRelations[relationDetails.codec.name][
@@ -248,21 +251,22 @@ export const PgOrderByRelatedPlugin: GraphileConfig.Plugin = {
             });
             const makeApply = (direction: "ASC" | "DESC") =>
               EXPORTABLE(
-                (TYPES, direction, relation, sql, sqlSubselect) =>
+                (codec, direction, nullable, relation, sql, sqlSubselect) =>
                   (queryBuilder: PgSelectQueryBuilder) => {
                     const foreignTableAlias = sql.identifier(
                       Symbol(relation.remoteResource.codec.name)
                     );
                     queryBuilder.orderBy({
-                      codec: TYPES.bigint,
+                      codec,
                       fragment: sqlSubselect(
                         queryBuilder.alias,
                         foreignTableAlias
                       ),
                       direction,
+                      nullable,
                     });
                   },
-                [TYPES, direction, relation, sql, sqlSubselect]
+                [codec, direction, nullable, relation, sql, sqlSubselect]
               );
             extend(
               enumValues,
@@ -352,7 +356,10 @@ export const PgOrderByRelatedPlugin: GraphileConfig.Plugin = {
                         sql,
                         sqlKeysMatch,
                       ]
-                    )
+                    ),
+                    relation.remoteResource.codec.attributes[attributeName]
+                      .codec,
+                    true
                   );
                 }
               }
@@ -392,7 +399,9 @@ where ${sqlKeysMatch(localAlias, remoteAlias)}
 )
 `,
                   [attributeName, remoteResource, sql, sqlKeysMatch]
-                )
+                ),
+                remoteCodec.attributes[attributeName].codec,
+                true
               );
             }
 
@@ -464,7 +473,9 @@ where ${sqlKeysMatch(localAlias, remoteAlias)}
                 `;
                     },
                   [remoteResource, resource, sql, sqlKeysMatch]
-                )
+                ),
+                resource.codec,
+                true
               );
             }
           }
